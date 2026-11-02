@@ -1,8 +1,8 @@
 {
- "version": "0.2.3",
+ "version": "0.2.4",
  "css": {
   "path": "app.css",
-  "sha256": "2e703a0f8a5753151a781b0b9a63ba0ef1c23c95d418de13878eccdd23d5628c"
+  "sha256": "b40b134bedc8ccaa0f559e466b275c0616364bfdf43d9d92b348f11153976f8e"
  },
  "body": {
   "path": "body.html",
@@ -15,11 +15,11 @@
   },
   {
    "path": "js/util.js",
-   "sha256": "c1da2496775f85aeda934209ed6911a6ad0d7574a64f77d94eb7ad8993c08ef3"
+   "sha256": "5c31a33c84390c1010103de028cd70cfcb9f48a71d8de5e18cef0371925995e1"
   },
   {
    "path": "js/nav.js",
-   "sha256": "bb42a365caa92ed566e16bc1dd84f42abfb1e20b02136902bd3e8f05b34b73b2"
+   "sha256": "8b23afae8ca03b592edd613ae1d393f985d6f96d0f305a17c9a7243ed7cdbd9b"
   },
   {
    "path": "js/store.js",
@@ -51,15 +51,15 @@
   },
   {
    "path": "js/player.js",
-   "sha256": "95cc4db1ba8048e2ec69ede2f923de9362933ac96cbf4412afdbdfb90476e2d2"
+   "sha256": "a27397ca05708f871e2e2cd6cee731b9c683eaa6a9a7265002eaeeddaefeaf53"
   },
   {
    "path": "js/desktop.js",
-   "sha256": "64b06aafba133b3163ab4c4135af19fdc89c162e131f33b0ab77d68353b21a02"
+   "sha256": "2604c79db5d3b95728ba747c5489b4c00b7db1eec016c46819c3e801c570bd0d"
   },
   {
    "path": "js/views.js",
-   "sha256": "6a5a1c107542d48fc04827e16275919cb460b6c2fe7e3d79903a42fd8e13e2ac"
+   "sha256": "4dcce22cdf00136f9fcfa1a584365c21917eb3eb851cc13dc61f7e3bbb29ac73"
   },
   {
    "path": "js/update.js",
