@@ -1,0 +1,531 @@
+/* The player: the file plays straight on the TV (Dolby Vision and Atmos kept), subtitles from subs.js, the remote,
+   continue-watching saves, and the next episode readied before the end. */
+(function () {
+  var v, box, osd, P = null; /* P = what is playing now */
+  var hideTimer = 0, saveTick = 0, lastPos = 0, seekAcc = 0, seekTimer = 0, seekTarget = null;
+
+  function el(id) { return CS.$(id); }
+
+  function showOsd(ms) {
+    if (!el('osd-buttons').children.length) buttons();
+    updateBar();
+    osd.classList.add('on');
+    el('player').classList.add('osd-on');
+    clearTimeout(hideTimer);
+    if (ms !== 0) hideTimer = setTimeout(function () { if (!v.paused && !panelOpen()) hideOsd(); }, ms || 4500);
+  }
+  function hideOsd() { osd.classList.remove('on'); el('player').classList.remove('osd-on'); clearTimeout(hideTimer); }
+  function panelOpen() { return !el('panel').classList.contains('hidden'); }
+
+  function spin(on, text) {
+    el('player-spin').classList.toggle('on', !!on);
+    el('player-spin-text').textContent = text || '';
+  }
+
+  function updateBar() {
+    if (!P) return;
+    var d = v.duration || P.duration || 0, c = seekTarget != null ? seekTarget : v.currentTime;
+    el('osd-cur').textContent = CS.fmtTime(c);
+    el('osd-dur').textContent = d ? '-' + CS.fmtTime(d - c) : '';
+    var pc = d ? Math.min(100, c / d * 100) : 0;
+    el('osd-fill').style.width = pc + '%';
+    el('osd-knob').style.left = pc + '%';
+    var tip = el('osd-tip');
+    if (seekTarget != null) { tip.textContent = CS.fmtTime(seekTarget); tip.style.left = pc + '%'; tip.classList.add('on'); }
+    else tip.classList.remove('on');
+    try {
+      var b = v.buffered, end = 0;
+      for (var i = 0; i < b.length; i++) if (b.start(i) <= v.currentTime + 1 && b.end(i) > end) end = b.end(i);
+      el('osd-buf').style.width = (d ? Math.min(100, end / d * 100) : 0) + '%';
+    } catch (e) { /* nothing buffered yet */ }
+  }
+
+  /* the bar comes up with the focus on the time line: right and left seek there, down goes to the buttons */
+  function openOsd(ms) {
+    showOsd(ms);
+    var bar = el('osd-bar');
+    if (CS.nav.current() !== bar) CS.nav.focus(bar, 'no-scroll');
+  }
+  function onBar() { return CS.nav.current() === el('osd-bar'); }
+
+  /* ---------- seeking with the arrows: each press adds a step, the jump happens when you stop pressing ---------- */
+  function seekBy(sec) {
+    if (!P || !v.duration) return;
+    if (seekTarget == null) { seekTarget = v.currentTime; seekAcc = 0; }
+    seekAcc++;
+    var base = Math.abs(sec) * (CS.settings.seekStep || 10) / 10; /* sec is in the default 10 s step: 10 = one step, 30 = three */
+    var step = !CS.settings.seekSpeedup ? base : seekAcc > 12 ? base * 6 : seekAcc > 5 ? base * 3 : base;
+    seekTarget = Math.max(0, Math.min(v.duration - 2, seekTarget + (sec > 0 ? step : -step)));
+    openOsd();
+    updateBar();
+    clearTimeout(seekTimer);
+    seekTimer = setTimeout(function () {
+      var t = seekTarget;
+      seekTarget = null;
+      seekAcc = 0;
+      if (t != null) { v.currentTime = t; CS.log('seek to', Math.round(t)); }
+      updateBar();
+    }, 650);
+  }
+
+  function seekToPointer(e, jump) {
+    if (!P || !v.duration) return;
+    var r = el('osd-bar').getBoundingClientRect();
+    var f = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    var t = f * v.duration;
+    var tip = el('osd-tip');
+    tip.textContent = CS.fmtTime(t);
+    tip.style.left = f * 100 + '%';
+    tip.classList.add('on');
+    if (!jump) return;
+    clearTimeout(seekTimer);
+    seekTarget = null;
+    seekAcc = 0;
+    v.currentTime = Math.min(t, v.duration - 2);
+    CS.log('seek by pointer to', Math.round(t));
+    updateBar();
+  }
+
+  /* ---------- buttons on the bar ---------- */
+  function buttons() {
+    var b = el('osd-buttons');
+    b.innerHTML = '';
+    var list = [
+      { id: 'play', label: v.paused ? '▶  تشغيل' : '❚❚  إيقاف مؤقت', act: togglePlay },
+      { id: 'subs', label: 'الترجمة', act: subsPanel },
+      { id: 'delay', label: 'توقيت الترجمة', act: delayPanel },
+      { id: 'audio', label: 'الصوت', act: audioPanel },
+      { id: 'source', label: 'المصدر', act: function () { var me = P; leave(false).then(function () { CS.player.close(); CS.views.streams(me.meta, me.video, { current: me.stream }); }); } }
+    ];
+    if (P && P.next) list.push({ id: 'next', label: 'الحلقة التالية', act: function () { playNext(); } });
+    list.forEach(function (x) {
+      var btn = CS.h('button.osd-btn.f', { 'data-id': x.id, onclick: function () { x.act(); } }, x.label);
+      b.appendChild(btn);
+    });
+    return b;
+  }
+
+  function togglePlay() {
+    if (!P) return;
+    if (v.paused) v.play().catch(function (e) { CS.log('play refused', e.message); });
+    else { v.pause(); CS.lib.flush(); }
+    showOsd(v.paused ? 0 : 3000);
+    var pb = el('osd-buttons').querySelector('[data-id=play]');
+    if (pb) pb.textContent = v.paused ? '▶  تشغيل' : '❚❚  إيقاف مؤقت';
+  }
+
+  /* ---------- side panels (subtitles, timing, audio) ---------- */
+  function openPanel(title, rows, focusIdx) {
+    var p = el('panel');
+    p.innerHTML = '';
+    p.appendChild(CS.h('h3', { text: title }));
+    var list = CS.h('div.panel-list.vscroll', null, CS.h('div.vtrack'));
+    rows.forEach(function (r) {
+      list.firstChild.appendChild(CS.h('button.panel-row.f' + (r.on ? '.on' : '') + (r.dim ? '.dim' : ''), { onclick: function () { r.act(); } }, [
+        CS.h('span.panel-main', { text: r.label }), r.note ? CS.h('span.panel-note', { text: r.note }) : null
+      ]));
+    });
+    p.appendChild(list);
+    p.classList.remove('hidden');
+    showOsd(0);
+    var scr = {
+      name: 'panel', modal: true, el: p, keep: true,
+      focusRoot: function () { return p; },
+      defaultFocus: function () { var all = p.querySelectorAll('.f'); return all[focusIdx || 0] || all[0]; },
+      destroy: function () { p.classList.add('hidden'); showOsd(); }
+    };
+    CS.nav.push(scr);
+  }
+  function closePanel() { if (CS.nav.top() && CS.nav.top().name === 'panel') CS.nav.pop(); }
+
+  function subLabel(s, i) { return CS.session.subLabel(s, i); }
+
+  function subsPanel() {
+    if (!P) return;
+    var rows = [{ label: 'بدون ترجمة', on: !P.sub, act: function () { chooseSub(null, true); closePanel(); } }];
+    var focus = 0;
+    P.subList.forEach(function (s, i) {
+      var l = subLabel(s, P.subList.indexOf(s));
+      if (P.sub === s) focus = rows.length;
+      rows.push({ label: l.label, note: l.note + (P.subFailed[s.url] ? ' · لم تعمل' : ''), on: P.sub === s, dim: !!P.subFailed[s.url], act: function () { chooseSub(s, true); closePanel(); } });
+    });
+    if (!P.subList.length) rows.push({ label: P.subsLoading ? 'جاري البحث عن ترجمات…' : 'لا توجد ترجمة عربية لهذه الحلقة', act: function () { closePanel(); } });
+    openPanel('الترجمة', rows, focus);
+  }
+
+  function delayText(ms) {
+    if (!ms) return 'في وقتها';
+    return (ms < 0 ? 'أبكر ' : 'أبطأ ') + (Math.abs(ms) / 1000).toFixed(1) + ' ث';
+  }
+  function nudgeDelay(ms) {
+    if (!P) return;
+    P.renderer.delay = Math.round((P.renderer.delay + ms) / 100) * 100;
+    CS.settings.subOffsets[P.meta.id] = P.renderer.delay;
+    CS.saveSettings();
+    var n = el('sub-nudge');
+    n.textContent = 'الترجمة: ' + delayText(P.renderer.delay);
+    n.classList.remove('hidden');
+    clearTimeout(n._t);
+    n._t = setTimeout(function () { n.classList.add('hidden'); }, 1800);
+    P.renderer.shown = null;
+  }
+  function delayPanel() {
+    if (!P) return;
+    var rows = [
+      { label: 'أبكر 0.1 ثانية', note: 'CH+', act: function () { nudgeDelay(-100); delayPanel(); } },
+      { label: 'أبطأ 0.1 ثانية', note: 'CH−', act: function () { nudgeDelay(100); delayPanel(); } },
+      { label: 'أبكر 0.5 ثانية', act: function () { nudgeDelay(-500); delayPanel(); } },
+      { label: 'أبطأ 0.5 ثانية', act: function () { nudgeDelay(500); delayPanel(); } },
+      { label: 'رجّعها لوقتها', note: delayText(P.renderer.delay), act: function () { nudgeDelay(-P.renderer.delay); delayPanel(); } }
+    ];
+    var keep = CS.nav.top() && CS.nav.top().name === 'panel' ? CS.nav.current() : null;
+    var idx = keep ? Array.prototype.indexOf.call(el('panel').querySelectorAll('.f'), keep) : 0;
+    closePanel();
+    openPanel('توقيت الترجمة — ' + delayText(P.renderer.delay) + ' (يُحفظ لهذا العنوان)', rows, Math.max(0, idx));
+  }
+
+  function audioTracks() {
+    var t = v.audioTracks, out = [];
+    if (!t) return out;
+    for (var i = 0; i < t.length; i++) out.push(t[i]);
+    return out;
+  }
+  function audioPanel() {
+    var tracks = audioTracks();
+    var rows = tracks.map(function (t, i) {
+      var lang = (t.language || '').toLowerCase();
+      var name = [CS.session.langName(lang) || (lang && lang !== 'und' ? lang : ''), t.label].filter(Boolean).join(' · ') || 'مسار ' + (i + 1);
+      return { label: name, on: t.enabled, act: function () { tracks.forEach(function (x, j) { x.enabled = j === i; }); CS.log('audio track', i, name); closePanel(); } };
+    });
+    if (!rows.length) rows.push({ label: 'مسار صوت واحد', on: true, act: closePanel });
+    openPanel('الصوت', rows, Math.max(0, tracks.findIndex(function (t) { return t.enabled; })));
+  }
+  function pickAudioByLanguage() {
+    var want = CS.settings.audioLang;
+    if (!want || want === 'original') return;
+    var tracks = audioTracks();
+    var codes = want === 'ara' ? ['ar', 'ara', 'arabic'] : ['en', 'eng', 'english'];
+    var k = tracks.findIndex(function (t) { return codes.indexOf((t.language || '').toLowerCase()) >= 0 || codes.indexOf((t.label || '').toLowerCase()) >= 0; });
+    if (k >= 0 && !tracks[k].enabled) { tracks.forEach(function (x, j) { x.enabled = j === k; }); CS.log('audio language picked', want, k); }
+  }
+
+  /* ---------- subtitles for this video ---------- */
+  function chooseSub(s, byUser) {
+    if (!P) return;
+    var me = P;
+    if (byUser) P.subPicked = true;
+    P.sub = s;
+    if (!s) { P.renderer.set([]); return; }
+    var t0 = Date.now();
+    if (byUser && CS.subs.isFitted(s)) CS.toast('يضبط كمبيوترك الترجمة على ملف الحلقة… قد يأخذ دقيقة');
+    CS.subs.load(s.url).then(function (cues) {
+      if (P !== me || P.sub !== s) return;
+      if (!cues.length) throw new Error('empty');
+      P.renderer.set(cues);
+      CS.log('subtitle on', String(s.id).slice(0, 40), cues.length + ' lines', (Date.now() - t0) + 'ms');
+      if (byUser) CS.toast('الترجمة: ' + subLabel(s, P.subList.indexOf(s)).label);
+    }).catch(function (e) {
+      if (P !== me) return;
+      P.subFailed[s.url] = 1;
+      CS.log('subtitle failed', String(s.id).slice(0, 40), e.message || e.name);
+      if (P.sub !== s) return;
+      /* try the next one by itself */
+      var next = P.subList.filter(function (x) { return !P.subFailed[x.url] && !CS.subs.isFitted(x); })[0];
+      if (next && !byUser) chooseSub(next, false);
+      else if (byUser) CS.toast('هذه الترجمة لم تعمل، جرّب غيرها');
+    });
+  }
+
+  function loadSubs() {
+    var me = P;
+    P.subsLoading = true;
+    CS.session.findSubs(P.meta, P.video, P.stream).then(function (g) {
+      if (P !== me) return;
+      P.subsLoading = false;
+      P.subList = g.list;
+      if (!CS.settings.subAuto || P.subPicked) return;
+      /* start with the fast one, then switch to the one fitted to this very file when the PC has it ready */
+      var first = g.plain[0] || g.others[0];
+      if (first) chooseSub(first, false);
+      var fit = g.fitted[0];
+      if (fit) {
+        var t0 = Date.now();
+        CS.subs.load(fit.url).then(function (cues) {
+          if (P !== me || P.subPicked || !cues.length) return;
+          P.sub = fit;
+          P.renderer.set(cues);
+          CS.log('subtitle fitted to the file is on', cues.length + ' lines', (Date.now() - t0) + 'ms');
+          CS.toast('ضُبطت الترجمة على ملف الحلقة');
+        }).catch(function (e) { if (P === me) { P.subFailed[fit.url] = 1; CS.log('fitted subtitle not available', e.message || e.name); } });
+      }
+    });
+  }
+
+  /* ---------- saving progress ---------- */
+  function save(force) {
+    if (!P || !v.duration || P.ended) return Promise.resolve();
+    var pos = v.currentTime, played = 0;
+    if (!v.paused && lastPos) played = Math.max(0, Math.min(15, pos - lastPos));
+    lastPos = pos;
+    var p = CS.lib.progress(P.meta, P.video.id, pos, v.duration, played);
+    return force ? p.then(CS.lib.flush) : p;
+  }
+
+  /* ---------- the next episode ---------- */
+  function prepareNext() {
+    if (!P || !P.next || P.nextPrep) return;
+    P.nextPrep = CS.session.nextSource(P.meta, P.next, P.stream);
+  }
+  function nextCard(sec) {
+    var c = el('next-card');
+    if (!P || !P.next) { c.classList.add('hidden'); return; }
+    c.innerHTML = '';
+    c.appendChild(CS.h('div.next-label', { text: 'الحلقة التالية' }));
+    c.appendChild(CS.h('div.next-name', { text: CS.epLabel(P.next.season, P.next.episode) + (P.next.title ? ' · ' + P.next.title : '') }));
+    c.appendChild(CS.h('div.next-count', { text: sec > 0 ? 'تبدأ خلال ' + sec + ' ث — OK الآن، رجوع للإلغاء' : 'OK للتشغيل' }));
+    c.classList.remove('hidden');
+  }
+  /* once per episode: the countdown, the end of the file and the button can all ask for it */
+  function playNext() {
+    if (!P || !P.next || P.ended) return;
+    var meta = P.meta, nv = P.next, prev = P.stream;
+    var prep = P.nextPrep || Promise.resolve(null);
+    CS.lib.finished(meta, P.video.id, nv.id);
+    P.ended = true;
+    spin(true, 'الحلقة التالية…');
+    prep.then(function (r) {
+      if (r && r.pick) return CS.player.play(meta, nv, r.pick, { list: r.list });
+      return CS.session.nextSource(meta, nv, prev).then(function (r2) {
+        if (!r2.pick) { CS.toast('لا يوجد مصدر للحلقة التالية'); return CS.player.stop(); }
+        return CS.player.play(meta, nv, r2.pick, { list: r2.list });
+      });
+    });
+  }
+
+  /* ---------- leaving ---------- */
+  function leave(finishedNow) {
+    if (!P) return Promise.resolve();
+    var me = P;
+    var d = v.duration || 0, c = v.currentTime || 0;
+    var done = finishedNow || CS.session.isFinished(c, d);
+    var p = done && !me.ended ? CS.lib.finished(me.meta, me.video.id, me.next ? me.next.id : null) : save(true);
+    me.ended = true;
+    me.renderer.stop();
+    clearInterval(saveTick);
+    clearInterval(me.nextTimer);
+    try { v.pause(); } catch (e) { /* already stopped */ }
+    v.removeAttribute('src');
+    try { v.load(); } catch (e) { /* nothing loaded */ }
+    if (P === me) P = null;
+    el('next-card').classList.add('hidden');
+    return p.then(CS.lib.flush);
+  }
+
+  /* ---------- the player screen ---------- */
+  var screen = {
+    name: 'player', keep: true,
+    focusRoot: function () { return osd; },
+    shown: function () { },
+    keys: function (e) {
+      var k = e.keyCode, K = CS.KEY;
+      if (!P) return false;
+      var nc = el('next-card');
+      if (!nc.classList.contains('hidden') && P.nextCountdown != null) {
+        if (k === K.OK) { clearInterval(P.nextTimer); playNext(); return true; }
+        if (CS.isBack(e)) { clearInterval(P.nextTimer); P.nextCountdown = null; P.cardDismissed = true; nc.classList.add('hidden'); return true; }
+      }
+      if (k === K.PLAY) { if (v.paused) togglePlay(); return true; }
+      if (k === K.PAUSE) { if (!v.paused) togglePlay(); return true; }
+      if (k === K.PLAYPAUSE || k === K.SPACE) { togglePlay(); return true; }
+      if (k === K.STOP) { CS.player.stop(); return true; }
+      if (k === K.FF) { seekBy(30); return true; }
+      if (k === K.REW) { seekBy(-30); return true; }
+      if (k === K.CHUP || k === K.RED) { nudgeDelay(-100); return true; }
+      if (k === K.CHDOWN || k === K.GREEN) { nudgeDelay(100); return true; }
+      if (k === K.YELLOW) { subsPanel(); return true; }
+      if (k === K.BLUE || k === K.INFO) { toggleDebug(); return true; }
+      var on = osd.classList.contains('on');
+      if (!on) {
+        if (k === K.LEFT) { seekBy(-10); return true; }
+        if (k === K.RIGHT) { seekBy(10); return true; }
+        if (k === K.OK) { togglePlay(); openOsd(); return true; }
+        if (k === K.UP || k === K.DOWN) { openOsd(); return true; }
+        if (CS.isBack(e)) { CS.player.stop(); return true; }
+        return true;
+      }
+      if (CS.isBack(e)) { hideOsd(); return true; }
+      var cur = CS.nav.current();
+      var inButtons = cur && cur.classList.contains('osd-btn');
+      if (!inButtons) {
+        /* on the time line (or nowhere yet) */
+        showOsd();
+        if (!onBar()) CS.nav.focus(el('osd-bar'), 'no-scroll');
+        if (k === K.LEFT) { seekBy(-10); return true; }
+        if (k === K.RIGHT) { seekBy(10); return true; }
+        if (k === K.OK) { togglePlay(); return true; }
+        if (k === K.DOWN) { var first = el('osd-buttons').querySelector('.f'); if (first) CS.nav.focus(first, 'no-scroll'); return true; }
+        return true;
+      }
+      showOsd();
+      if (k === K.UP) { CS.nav.focus(el('osd-bar'), 'no-scroll'); return true; }
+      if (k === K.DOWN) { hideOsd(); return true; }
+      return false; /* left/right/OK move between and press the buttons */
+    }
+  };
+
+  var debugTimer = 0;
+  function toggleDebug() {
+    var d = el('debug');
+    if (!d.classList.contains('hidden')) { d.classList.add('hidden'); clearInterval(debugTimer); return; }
+    d.classList.remove('hidden');
+    var draw = function () {
+      if (!P) return;
+      var r = P.renderer.report();
+      var q = v.getVideoPlaybackQuality ? v.getVideoPlaybackQuality() : {};
+      d.textContent = [
+        'video ' + (v.videoWidth || '?') + 'x' + (v.videoHeight || '?') + '  dropped ' + (q.droppedVideoFrames || 0) + '/' + (q.totalVideoFrames || 0),
+        'clock: report every ' + r.reportGapMedianMs + ' ms (95%: ' + r.reportGap95Ms + ')  late reports ' + r.reportBehindMedianMs + ' ms (95%: ' + r.reportBehind95Ms + ')  frame reports ' + r.frameReports,
+        'lines: ' + r.lines + '  appeared after their time ' + r.lineLateMedianMs + ' ms (95%: ' + r.lineLate95Ms + ')  delay ' + P.renderer.delay + ' ms',
+        'sub: ' + String(P.sub ? P.sub.id : 'none').slice(0, 60),
+        'src: ' + (P.stream.addonName || '') + ' ' + (P.stream.file || '').slice(0, 70)
+      ].join('\n');
+    };
+    draw();
+    debugTimer = setInterval(draw, 1000);
+  }
+
+  CS.player = {
+    init: function () {
+      v = el('video'); box = el('subs'); osd = el('osd');
+      /* the Magic Remote pointer: moving it shows the bar; a click on the time line jumps there */
+      var bar = el('osd-bar');
+      el('player').addEventListener('mousemove', function () { if (P && !panelOpen()) showOsd(); });
+      bar.addEventListener('mousemove', function (e) { seekToPointer(e, false); });
+      bar.addEventListener('mouseleave', function () { if (seekTarget == null) el('osd-tip').classList.remove('on'); });
+      bar.addEventListener('click', function (e) {
+        if (!e.isTrusted || (e.clientX === 0 && e.clientY === 0)) { togglePlay(); return; } /* OK on the remote */
+        seekToPointer(e, true);
+      });
+      v.addEventListener('waiting', function () { if (P) spin(true); });
+      v.addEventListener('seeking', function () { if (P) spin(true); });
+      v.addEventListener('playing', function () { spin(false); if (P && osd.classList.contains('on') && !panelOpen()) showOsd(2500); if (P && !P.started) { P.started = true; CS.log('playing', Math.round(performance.now() - P.t0) + 'ms after the press', v.videoWidth + 'x' + v.videoHeight); } });
+      v.addEventListener('canplay', function () { spin(false); });
+      v.addEventListener('seeked', function () { spin(false); if (P) P.renderer.clock.reset(); });
+      v.addEventListener('pause', function () { if (P) { showOsd(0); P.renderer.clock.reset(); } });
+      v.addEventListener('timeupdate', function () {
+        if (!P) return;
+        if (v.currentTime > 1 && !v.seeking) P.lastTime = v.currentTime; /* where to come back after a drop */
+        if (osd.classList.contains('on')) updateBar();
+        var d = v.duration, c = v.currentTime;
+        if (!d) return;
+        if (P.next && !P.nextPrep && c / d > 0.8) prepareNext();
+        /* the end card in the last 25 seconds (or at the credits) */
+        if (P.next && CS.settings.autoNext && P.nextCountdown == null && !P.cardDismissed && d - c < 25 && d > 300) {
+          P.nextCountdown = Math.max(1, Math.round(d - c - 2));
+          nextCard(P.nextCountdown);
+          P.nextTimer = setInterval(function () {
+            if (!P || P.nextCountdown == null) return;
+            P.nextCountdown--;
+            nextCard(P.nextCountdown);
+            if (P.nextCountdown <= 0) { clearInterval(P.nextTimer); playNext(); }
+          }, 1000);
+        }
+      });
+      v.addEventListener('ended', function () {
+        if (!P || P.ended) return; /* the next episode is already on its way */
+        if (P.next && CS.settings.autoNext) playNext();
+        else leave(true).then(function () { CS.player.close(); });
+      });
+      v.addEventListener('loadedmetadata', function () {
+        if (!P) return;
+        CS.log('file opened', Math.round(performance.now() - P.t0) + 'ms', 'duration ' + Math.round(v.duration) + 's', 'audio tracks ' + (v.audioTracks ? v.audioTracks.length : 'n/a'));
+        if (P.resume && P.resume > 5 && P.resume < v.duration - 30) v.currentTime = P.resume;
+        pickAudioByLanguage();
+      });
+      v.addEventListener('error', function () {
+        if (!P) return;
+        var err = v.error || {};
+        CS.log('video error', err.code, err.message || '');
+        var me = P;
+        /* it was playing and stopped (Wi-Fi, the PC's ⚡ restarting): try the same source again from the same spot, twice */
+        if (me.started && (me.retries || 0) < 2) {
+          me.retries = (me.retries || 0) + 1;
+          var at = me.lastTime || 0;
+          spin(true, 'انقطع الاتصال — نعيد المحاولة (' + me.retries + ')…');
+          CS.log('retrying the source', me.retries, 'from', Math.round(at));
+          setTimeout(function () {
+            if (P !== me) return;
+            me.resume = at;
+            v.src = CS.streams.playUrl(me.stream);
+            v.play().catch(function (e) { CS.log('play refused', e.message); });
+          }, me.retries * 2500);
+          return;
+        }
+        spin(false);
+        CS.toast(err.code === 4 ? 'التلفزيون لا يشغّل هذا الملف — اختر مصدرًا آخر' : 'المصدر توقف — اختر مصدرًا آخر', 6000);
+        leave(false).then(function () { CS.player.close(); CS.views.streams(me.meta, me.video, { failed: me.stream }); });
+      });
+    },
+    playing: function () { return P; },
+    /* meta: title page; video: {id, season, episode, title} (a movie: the movie itself); stream: parsed source */
+    play: function (meta, video, stream, opts) {
+      opts = opts || {};
+      var url = CS.streams.playUrl(stream);
+      if (!url) { CS.toast(stream.needsServer ? 'هذا المصدر يحتاج Stremio شغّالًا في كمبيوترك' : 'هذا المصدر بلا رابط'); return Promise.resolve(); }
+      var before = P ? leave(false) : Promise.resolve();
+      return before.then(function () {
+        var resume = opts.resume;
+        if (resume == null) {
+          var rp = CS.lib.resumePoint(meta.id);
+          if (rp && rp.videoId === video.id && rp.offset > 5) resume = rp.offset;
+        }
+        P = {
+          meta: meta, video: video, stream: stream, t0: performance.now(), resume: resume || 0,
+          next: CS.session.nextVideo(meta, video), subList: [], subFailed: {}, sub: null,
+          renderer: new CS.subs.Renderer(v, box)
+        };
+        P.renderer.delay = CS.settings.subOffsets[meta.id] || 0;
+        CS.subs.applyStyle(box);
+        P.renderer.start();
+        CS.settings.lastPick[meta.id] = CS.streams.memo(stream);
+        CS.saveSettings();
+        el('osd-buttons').innerHTML = ''; /* rebuilt for this video (the next-episode button may change) */
+        el('osd-name').textContent = meta.name;
+        el('osd-sub').textContent = meta.type === 'series' ? CS.epLabel(video.season, video.episode) + (video.title ? ' · ' + video.title : '') : (meta.releaseInfo || '');
+        var badges = el('osd-badges');
+        badges.innerHTML = '';
+        CS.streams.badges(stream).forEach(function (b) { badges.appendChild(CS.h('span.badge', { text: b })); });
+        el('player').classList.remove('hidden');
+        document.body.classList.add('playing');
+        spin(true, stream.speeder ? '⚡ من كمبيوترك' : '');
+        hideOsd();
+        if (!CS.nav.top() || CS.nav.top().name !== 'player') {
+          CS.nav.push(Object.assign(screen, { el: el('player') }));
+          CS.nav.drop('streams'); /* Back from the video goes to the title page */
+        }
+        CS.log('play', meta.id, video.id, stream.addonName, (stream.file || '').slice(0, 80), url.replace(/\/[^/]{24,}\//g, '/…/').slice(0, 100));
+        v.muted = false;
+        v.src = url;
+        v.play().catch(function (e) { CS.log('autoplay refused', e.message); });
+        lastPos = 0;
+        clearInterval(saveTick);
+        saveTick = setInterval(function () { if (P && !v.paused) save(false); }, 10000);
+        loadSubs();
+      });
+    },
+    stop: function () {
+      return leave(false).then(function () { CS.player.close(); });
+    },
+    close: function () {
+      el('player').classList.add('hidden');
+      document.body.classList.remove('playing');
+      hideOsd();
+      el('panel').classList.add('hidden');
+      el('debug').classList.add('hidden');
+      clearInterval(debugTimer);
+      while (CS.nav.top() && (CS.nav.top().name === 'player' || CS.nav.top().name === 'panel')) CS.nav.pop();
+      if (CS.onPlayerClosed) CS.onPlayerClosed();
+    },
+    flush: function () { return save(true); }
+  };
+})();

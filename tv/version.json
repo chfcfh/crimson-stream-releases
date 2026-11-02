@@ -1,0 +1,73 @@
+{
+ "version": "0.2.1",
+ "css": {
+  "path": "app.css",
+  "sha256": "2e703a0f8a5753151a781b0b9a63ba0ef1c23c95d418de13878eccdd23d5628c"
+ },
+ "body": {
+  "path": "body.html",
+  "sha256": "69e29d26e7d76684f6951ff22a676d9027bf8b671643029d9fc42f281a52a28b"
+ },
+ "scripts": [
+  {
+   "path": "js/config.js",
+   "sha256": "62d0ccbfb03788b36535d43d46cdce185b1886e4c13679254952b054fa95b7cb"
+  },
+  {
+   "path": "js/util.js",
+   "sha256": "c1da2496775f85aeda934209ed6911a6ad0d7574a64f77d94eb7ad8993c08ef3"
+  },
+  {
+   "path": "js/nav.js",
+   "sha256": "bb42a365caa92ed566e16bc1dd84f42abfb1e20b02136902bd3e8f05b34b73b2"
+  },
+  {
+   "path": "js/store.js",
+   "sha256": "3d035bd66826eb51b22b7d04b40c05f5d5b2190a3c40897b28068eaa683aef1e"
+  },
+  {
+   "path": "js/api.js",
+   "sha256": "98ebe31c287b112c3fa7dbb707a3d0dce04c148a6d53c77fdbaf5aafc2995d1e"
+  },
+  {
+   "path": "js/addons.js",
+   "sha256": "2abdb932381d4d4eb926755bf2e603b9e41fd8d058ea7965aac134d56e4935d3"
+  },
+  {
+   "path": "js/library.js",
+   "sha256": "aae0e869b59445155aa6bcbbd236967392930716b49e8804f449dcbaf4e7b01e"
+  },
+  {
+   "path": "js/streams.js",
+   "sha256": "80dad31b37beff37c3f1fe454ab53e21fd0270d78a4c93d4735449bfd3ceda00"
+  },
+  {
+   "path": "js/subs.js",
+   "sha256": "ecc69bf101c5e121291442f861534116751bcb5a68ad31e80b24bb237ae33b85"
+  },
+  {
+   "path": "js/session.js",
+   "sha256": "9b439e8e5e0e41bdbf3f3d6a15c87f3f86300f9f2d9325fc578c13e3582dc376"
+  },
+  {
+   "path": "js/player.js",
+   "sha256": "95cc4db1ba8048e2ec69ede2f923de9362933ac96cbf4412afdbdfb90476e2d2"
+  },
+  {
+   "path": "js/desktop.js",
+   "sha256": "64b06aafba133b3163ab4c4135af19fdc89c162e131f33b0ab77d68353b21a02"
+  },
+  {
+   "path": "js/views.js",
+   "sha256": "b154e05a3ece89fae836456ee3e5e2174c1dd2778e6d4fd7d45e03f45f0cc4ac"
+  },
+  {
+   "path": "js/update.js",
+   "sha256": "4b71a74cfbbe305e191f63bb15fe3fd35f0cdf54d1aa0f68e1ca26522b823ea2"
+  },
+  {
+   "path": "js/main.js",
+   "sha256": "590f442dd6ff60f53c183d20cd0d1897e92ded771719be9edff2e9be43b92ac3"
+  }
+ ]
+}
