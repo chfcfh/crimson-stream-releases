@@ -1,5 +1,5 @@
 {
- "version": "0.2.7",
+ "version": "0.2.8",
  "css": {
   "path": "app.css",
   "sha256": "92cfa8435c9316d3dda81650d332f85df872b1b85d7622a19905f3b747208dba"
@@ -46,16 +46,24 @@
    "sha256": "ecc69bf101c5e121291442f861534116751bcb5a68ad31e80b24bb237ae33b85"
   },
   {
+   "path": "js/linefit.js",
+   "sha256": "bf15bfc2316a62d29a8357ee411951c4ecf89cea60ee6dbed655840d4945fc46"
+  },
+  {
+   "path": "js/mkvindex.js",
+   "sha256": "6903e7aba9265d547142d77806020084b049e31134d94678c902b45b80d2cc5b"
+  },
+  {
    "path": "js/session.js",
    "sha256": "9b439e8e5e0e41bdbf3f3d6a15c87f3f86300f9f2d9325fc578c13e3582dc376"
   },
   {
    "path": "js/player.js",
-   "sha256": "203540e451113a9f3cb7460ce3cb3602e54554324b3a1db09b2c6dd5b87bb3b6"
+   "sha256": "2dbec63a229cab18026245b49a57d3f7700c4c8aeb89604549911afdc80b0709"
   },
   {
    "path": "js/desktop.js",
-   "sha256": "9c7d74fa38bcb7538167404bfc2f1a6aa044f406ead9af5666b1fa1135faf103"
+   "sha256": "87a37f4115d25016d0ea91b8ad32c4a8fd7e2e0507420331add942c66a317588"
   },
   {
    "path": "js/views.js",
