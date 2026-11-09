@@ -1,8 +1,8 @@
 {
- "version": "0.2.10",
+ "version": "0.2.11",
  "css": {
   "path": "app.css",
-  "sha256": "4035ec5c04f2fa7aa585b18aa6d8d29360a66e75ce4acd76b8f32d56d8cd5437"
+  "sha256": "4c02896aff6d794f7e2d1967e56d7dcc7a3c8f0d4c43880da2b024a8e1a0447a"
  },
  "body": {
   "path": "body.html",
@@ -11,11 +11,11 @@
  "scripts": [
   {
    "path": "js/config.js",
-   "sha256": "62d0ccbfb03788b36535d43d46cdce185b1886e4c13679254952b054fa95b7cb"
+   "sha256": "e3383bf60182a803b695191aef472972bfd2d557c62f70e63f0315694a66b4f4"
   },
   {
    "path": "js/util.js",
-   "sha256": "7bb42bab8d4997c195bbd2e146b5ac95bf51addb45fb8e1ffeb2b678faec7656"
+   "sha256": "5cddb909baf169f502b43612fd201ca1f93152d75db1d3257a422776c98b6f8e"
   },
   {
    "path": "js/nav.js",
@@ -23,7 +23,7 @@
   },
   {
    "path": "js/store.js",
-   "sha256": "4e5652fd937f0b40fa83d2a087d11e85e6f3ebe7c3f8672b7b036e4a5afe805c"
+   "sha256": "cf76700053fccc99fcf962372ee026027f128205523003ede6153f311444923d"
   },
   {
    "path": "js/api.js",
@@ -43,15 +43,15 @@
   },
   {
    "path": "js/subs.js",
-   "sha256": "ecc69bf101c5e121291442f861534116751bcb5a68ad31e80b24bb237ae33b85"
+   "sha256": "c2975f94ace2667d38dfaf2c06607b18b93aa8fc723a131e05307b02bd405c71"
   },
   {
    "path": "js/linefit.js",
-   "sha256": "bf15bfc2316a62d29a8357ee411951c4ecf89cea60ee6dbed655840d4945fc46"
+   "sha256": "4e2b680093663b74a2b233a159899667da844916070875f165f4453b52692682"
   },
   {
    "path": "js/mkvindex.js",
-   "sha256": "6903e7aba9265d547142d77806020084b049e31134d94678c902b45b80d2cc5b"
+   "sha256": "dcb52f000c3ca6fdf30acde5bf4e3c6aa6d5b8bbc5df8a7b54f39c0a5ece5bc0"
   },
   {
    "path": "js/session.js",
@@ -59,15 +59,15 @@
   },
   {
    "path": "js/player.js",
-   "sha256": "c12b52a834704800726f515daaeee723f9a3bc7739c410105c4ae9da1ccd5b52"
+   "sha256": "093fce1c9f0ae8322dc80ceaababb63029fc30d8ac3412dd4235f8fd31d928e2"
   },
   {
    "path": "js/desktop.js",
-   "sha256": "502f8012fee06ee7150a6dbcc9f8d030bcd7baeba89a2ee05fed24c60ac061f3"
+   "sha256": "5c7c00c2dbfb3eb70cd40b3bca01be8ebb00d2716a8e9c609822d4bf6c9b2d43"
   },
   {
    "path": "js/views.js",
-   "sha256": "4ecb00b4b5d54f947ac2fa6b883c887f40fcaad2ceacb835c2408196940ce680"
+   "sha256": "bdfd87116200cd4117689d0ad5a30b6bf9a07a7f85bfe2e9b99933942a2d168f"
   },
   {
    "path": "js/update.js",
