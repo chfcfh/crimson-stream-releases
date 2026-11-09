@@ -1,8 +1,8 @@
 {
- "version": "0.2.9",
+ "version": "0.2.10",
  "css": {
   "path": "app.css",
-  "sha256": "92cfa8435c9316d3dda81650d332f85df872b1b85d7622a19905f3b747208dba"
+  "sha256": "4035ec5c04f2fa7aa585b18aa6d8d29360a66e75ce4acd76b8f32d56d8cd5437"
  },
  "body": {
   "path": "body.html",
@@ -15,11 +15,11 @@
   },
   {
    "path": "js/util.js",
-   "sha256": "0505ca22cf41e335a221991751361d42e64791e7233cabce986153cd8c60d440"
+   "sha256": "7bb42bab8d4997c195bbd2e146b5ac95bf51addb45fb8e1ffeb2b678faec7656"
   },
   {
    "path": "js/nav.js",
-   "sha256": "779146b2013b114fe9fc1808e1a2496f41780b7fb8cf609d8360f8f83ab3137f"
+   "sha256": "a88f39dc2a2a5ee0ac7e246daf45ee3794b465be22e7295e73b311674ac02c62"
   },
   {
    "path": "js/store.js",
@@ -31,7 +31,7 @@
   },
   {
    "path": "js/addons.js",
-   "sha256": "2abdb932381d4d4eb926755bf2e603b9e41fd8d058ea7965aac134d56e4935d3"
+   "sha256": "e4334a6917f5a85b1eaa4fb6a86b9efe0f8f7ed44ef95b6b356d4f4c62c3e3a2"
   },
   {
    "path": "js/library.js",
@@ -55,19 +55,19 @@
   },
   {
    "path": "js/session.js",
-   "sha256": "9b439e8e5e0e41bdbf3f3d6a15c87f3f86300f9f2d9325fc578c13e3582dc376"
+   "sha256": "b88ff53ef325702c17d4eaf53f2b22a70d718aa176491696b5badc01dc6bc8ca"
   },
   {
    "path": "js/player.js",
-   "sha256": "2dbec63a229cab18026245b49a57d3f7700c4c8aeb89604549911afdc80b0709"
+   "sha256": "c12b52a834704800726f515daaeee723f9a3bc7739c410105c4ae9da1ccd5b52"
   },
   {
    "path": "js/desktop.js",
-   "sha256": "eb064c33086733f112514a86cd0d4d5c05121594bf88e1464c2e921e479cb9d7"
+   "sha256": "502f8012fee06ee7150a6dbcc9f8d030bcd7baeba89a2ee05fed24c60ac061f3"
   },
   {
    "path": "js/views.js",
-   "sha256": "401dcabf7a3069bb184580cde88a7cfff22575d516d74073a75861992621214d"
+   "sha256": "4ecb00b4b5d54f947ac2fa6b883c887f40fcaad2ceacb835c2408196940ce680"
   },
   {
    "path": "js/update.js",
@@ -75,7 +75,7 @@
   },
   {
    "path": "js/main.js",
-   "sha256": "590f442dd6ff60f53c183d20cd0d1897e92ded771719be9edff2e9be43b92ac3"
+   "sha256": "1addcb198414483d78b329c27b0ae111afe63426702e28279d10e9231325521f"
   }
  ]
 }
