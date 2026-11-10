@@ -1,5 +1,5 @@
 {
- "version": "0.2.17",
+ "version": "0.2.18",
  "css": {
   "path": "app.css",
   "sha256": "7765f87ec2b1a55bd79dcc5302d3a70ebbcf3cb70ad4d6dde2baedc013b3d206"
@@ -59,7 +59,7 @@
   },
   {
    "path": "js/player.js",
-   "sha256": "992d54a2f40a6a24760d5b21bbdab22bb86d210a791d6cac2e6d913b8e14bd32"
+   "sha256": "9c7b694a8493fae3c172d46fd6c41c056dd9dbc66cc58f0be7efd4bd4f94113e"
   },
   {
    "path": "js/desktop.js",
