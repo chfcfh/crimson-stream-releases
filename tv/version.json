@@ -1,5 +1,5 @@
 {
- "version": "0.2.23",
+ "version": "0.2.24",
  "css": {
   "path": "app.css",
   "sha256": "7765f87ec2b1a55bd79dcc5302d3a70ebbcf3cb70ad4d6dde2baedc013b3d206"
@@ -47,11 +47,15 @@
   },
   {
    "path": "js/linefit.js",
-   "sha256": "4e2b680093663b74a2b233a159899667da844916070875f165f4453b52692682"
+   "sha256": "1463e49079a2d288edea4faaae6e74e4355680afea37463c0ef356e887934f69"
   },
   {
    "path": "js/mkvindex.js",
    "sha256": "4ab78a7c1ef51b6972a841960176291384364666942ed54367a6962e8500a798"
+  },
+  {
+   "path": "js/fileindex.js",
+   "sha256": "ccc033a04a2442f844bda54d0605b37c27d670e9051dcc5cae5400be3bdfdfcf"
   },
   {
    "path": "js/session.js",
@@ -59,7 +63,7 @@
   },
   {
    "path": "js/player.js",
-   "sha256": "7f69d969d172da675e15c4aa038e585e47277684c52c076185e8775871efe23f"
+   "sha256": "232f0f12c5792a63a463db517d7bb9d6e24e46967a404915e533fa8899e51cde"
   },
   {
    "path": "js/desktop.js",
