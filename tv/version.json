@@ -1,5 +1,5 @@
 {
- "version": "0.2.16",
+ "version": "0.2.17",
  "css": {
   "path": "app.css",
   "sha256": "7765f87ec2b1a55bd79dcc5302d3a70ebbcf3cb70ad4d6dde2baedc013b3d206"
@@ -71,7 +71,7 @@
   },
   {
    "path": "js/views.js",
-   "sha256": "0f248cb0092b4aa4764be68fb83b61bb69a071c28ca157932dd8ecf76aff8221"
+   "sha256": "998c5dcd3e3cbab932726b31de5e9e53d4923a497ba49fd75276932fa7c90a46"
   },
   {
    "path": "js/update.js",
