@@ -1,0 +1,300 @@
+/* Sources: reading what each add-on says about a file (quality, Dolby Vision, size, cached), ordering them, and picking
+   the one that matches the last choice for the next episode. */
+(function () {
+  var CACHE_TAG = /\[(TB|RD|AD|PM|DL|ED|OC|EN|PKP|TRB)\s*(\+|⚡)\]/i;
+  var NOT_CACHED = /\[(TB|RD|AD|PM|DL|ED|OC)\s*(download|↓)\]/i;
+
+  function sizeOf(text, hints) {
+    if (hints && hints.videoSize) return hints.videoSize;
+    var m = /💾\s*([\d.,]+)\s*(TB|GB|MB)/i.exec(text) || /\b([\d.]+)\s*(GB|MB)\b/i.exec(text);
+    if (!m) return 0;
+    var n = parseFloat(m[1].replace(',', '.'));
+    return Math.round(n * (/TB/i.test(m[2]) ? 1099511627776 : /GB/i.test(m[2]) ? 1073741824 : 1048576));
+  }
+
+  function parse(s) {
+    var a = s._addon || { manifest: { name: '', id: '' } };
+    var name = s.name || '', title = s.title || s.description || '';
+    var text = name + '\n' + title;
+    var hints = s.behaviorHints || {};
+    var res = /\b(2160p|4k|uhd)\b/i.test(text) ? 2160 : /\b1080p\b/i.test(text) ? 1080 : /\b720p\b/i.test(text) ? 720 : /\b(480p|sd)\b/i.test(text) ? 480 : 0;
+    var lines = title.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+    var file = hints.filename || '';
+    if (!file) { var f = lines.filter(function (l) { return /\.(mkv|mp4|avi|m4v|ts|webm)$/i.test(l); })[0]; if (f) file = f.split('/').pop(); }
+    var url = s.url || '';
+    var o = {
+      raw: s,
+      addonId: a.manifest.id,
+      addonName: a.manifest.name || '',
+      name: name,
+      lines: lines,
+      file: file,
+      res: res,
+      dv: /\b(dv|dovi|dolby\s*vision)\b/i.test(text),
+      hdr10p: /hdr10\+|hdr10plus/i.test(text),
+      hdr: /\bhdr(10)?\b/i.test(text),
+      atmos: /atmos/i.test(text),
+      audio: (/(truehd|dts-?hd(\s?ma)?|dts-?x|dts|ddp\s?5\.1|ddp|dd\+|eac3|ac3|aac|flac|opus)/i.exec(text) || [''])[0].toUpperCase(),
+      codec: (/(x265|hevc|h\.?265|x264|h\.?264|avc|av1)/i.exec(text) || [''])[0].toUpperCase().replace('H.', 'H'),
+      size: sizeOf(text, hints),
+      seeds: +((/👤\s*(\d+)/.exec(text) || [0, 0])[1]),
+      cached: CACHE_TAG.test(name) ? true : NOT_CACHED.test(name) ? false : null,
+      speeder: a.manifest.id === CS.config.speederId,
+      cloud: a.manifest.id === CS.config.cloudId,
+      bingeGroup: hints.bingeGroup || '',
+      group: (/[-. (]([A-Za-z0-9]{2,12})\)?\.(mkv|mp4)$/.exec(file) || /\b(?:x265|x264|hevc)\s+([A-Za-z0-9]{2,12})\)/i.exec(file) || ['', ''])[1],
+      url: url,
+      infoHash: s.infoHash || '',
+      fileIdx: s.fileIdx,
+      why: ''
+    };
+    if (s.ytId || s.externalUrl) o.why = 'رابط خارجي';
+    else if (hints.proxyHeaders && hints.proxyHeaders.request) o.why = 'يحتاج ترويسات خاصة';
+    else if (!url && !s.infoHash) o.why = 'بدون رابط';
+    else if (!url && s.infoHash) o.needsServer = true;
+    o.langs = langsOf(o);
+    var seen = knownTracks()[sameFile(o)];
+    if (seen) o.langs = { audio: seen.a.length ? seen.a : o.langs.audio, subs: seen.s, sure: true, anySubs: seen.s.length > 0, multiAudio: false, multiSubs: false };
+    return o;
+  }
+
+  function rank(o) {
+    var r = 0;
+    if (o.speeder) r += 1e6;
+    else if (o.cloud) r += 9e5;
+    if (o.cached === true) r += 1e5; else if (o.cached === null && o.url) r += 5e4;
+    if (o.needsServer) r -= 2e5;
+    var q = CS.settings.preferQuality;
+    if (q === '1080p') r += o.res === 1080 ? 9e3 : o.res === 2160 ? 6e3 : o.res * 2;
+    else if (q === '720p') r += o.res === 720 ? 9e3 : o.res === 1080 ? 6e3 : o.res;
+    else r += o.res * 4;
+    if (o.dv) r += 600; else if (o.hdr10p) r += 400; else if (o.hdr) r += 300;
+    return r;
+  }
+
+  /* the same file from two add-ons has the same name and size */
+  function sameFile(o) { return (o.file || o.lines[0] || '') + '|' + o.size; }
+
+  /* ---------- languages: the audio a file has, and the subtitles inside it ----------
+     Read from what the add-on writes (the release name, the file name, Torrentio's flags), so it is a good guess, not a
+     promise. Once a file was opened and its own track list read (mkvindex.js), that list is kept and shown instead. */
+  var LANGS = [
+    /* code, name, full words (always a language), short codes (a language only next to other languages, sub/dub/audio
+       words, or written in capitals), flags */
+    ['ar', 'العربية', 'arabic|arab', 'ara|ar', '🇸🇦🇦🇪🇪🇬🇰🇼🇶🇦🇯🇴🇱🇧🇲🇦🇩🇿🇹🇳🇮🇶🇸🇾'],
+    ['en', 'الإنجليزية', 'english', 'eng|en', '🇬🇧🇺🇸'],
+    ['ja', 'اليابانية', 'japanese', 'jap|jpn|jp|ja', '🇯🇵'],
+    ['ko', 'الكورية', 'korean', 'kor|ko', '🇰🇷'],
+    ['zh', 'الصينية', 'chinese|mandarin|cantonese', 'chi|chs|cht|zho|zh', '🇨🇳🇹🇼🇭🇰'],
+    ['fr', 'الفرنسية', 'french|truefrench', 'fre|fra|fr|vf|vff|vfq|vfi|vf2', '🇫🇷'],
+    ['de', 'الألمانية', 'german', 'ger|deu|de', '🇩🇪'],
+    ['es', 'الإسبانية', 'spanish|castellano|latino|espanol', 'spa|esp|es|lat', '🇪🇸🇲🇽'],
+    ['it', 'الإيطالية', 'italian', 'ita|it', '🇮🇹'],
+    ['pt', 'البرتغالية', 'portuguese|dublado', 'por|pt|ptbr', '🇵🇹🇧🇷'],
+    ['ru', 'الروسية', 'russian', 'rus|ru', '🇷🇺'],
+    ['uk', 'الأوكرانية', 'ukrainian', 'ukr|ua', '🇺🇦'],
+    ['hi', 'الهندية', 'hindi', 'hin', '🇮🇳'],
+    ['ta', 'التاميلية', 'tamil', 'tam', ''],
+    ['te', 'التيلوغوية', 'telugu', 'tel', ''],
+    ['tr', 'التركية', 'turkish', 'tur', '🇹🇷'],
+    ['pl', 'البولندية', 'polish', 'pol', '🇵🇱'],
+    ['nl', 'الهولندية', 'dutch', 'nld|dut', '🇳🇱'],
+    ['sv', 'السويدية', 'swedish', 'swe', '🇸🇪'],
+    ['da', 'الدنماركية', 'danish', 'dan', '🇩🇰'],
+    ['no', 'النرويجية', 'norwegian', 'nor', '🇳🇴'],
+    ['cs', 'التشيكية', 'czech', 'cze|ces', '🇨🇿'],
+    ['hu', 'المجرية', 'hungarian', 'hun', '🇭🇺'],
+    ['hr', 'الكرواتية', 'croatian', 'hrv', '🇭🇷'],
+    ['th', 'التايلندية', 'thai', 'tha', '🇹🇭'],
+    ['id', 'الإندونيسية', 'indonesian', 'ind', '🇮🇩'],
+    ['fa', 'الفارسية', 'persian|farsi', 'per|fas', '🇮🇷'],
+    /* named only by a file's own tracks (their short codes are words too often to be read from a name) */
+    ['fi', 'الفنلندية', 'finnish', '', '🇫🇮'],
+    ['el', 'اليونانية', 'greek', '', '🇬🇷'],
+    ['he', 'العبرية', 'hebrew', '', ''],
+    ['ro', 'الرومانية', 'romanian', '', '🇷🇴'],
+    ['ms', 'الملايوية', 'malay', '', '🇲🇾'],
+    ['vi', 'الفيتنامية', 'vietnamese', '', '🇻🇳'],
+    ['bg', 'البلغارية', 'bulgarian', '', '🇧🇬'],
+    ['sr', 'الصربية', 'serbian', '', '🇷🇸'],
+    ['sk', 'السلوفاكية', 'slovak', '', '🇸🇰'],
+    ['sl', 'السلوفينية', 'slovenian', '', '🇸🇮'],
+    ['et', 'الإستونية', 'estonian', '', '🇪🇪'],
+    ['lv', 'اللاتفية', 'latvian', '', '🇱🇻'],
+    ['lt', 'الليتوانية', 'lithuanian', '', '🇱🇹'],
+    ['ca', 'الكتالونية', 'catalan', '', ''],
+    ['tl', 'الفلبينية', 'filipino|tagalog', '', '🇵🇭'],
+    ['bn', 'البنغالية', 'bengali', '', '🇧🇩'],
+    ['ur', 'الأردية', 'urdu', '', '🇵🇰']
+  ];
+  var LANG_NAME = { orig: 'الأصلية' }, FULL = {}, SHORT = {}, FLAG = {};
+  LANGS.forEach(function (l) {
+    LANG_NAME[l[0]] = l[1];
+    l[2].split('|').forEach(function (w) { FULL[w] = l[0]; });
+    l[3].split('|').forEach(function (w) { if (w) SHORT[w] = l[0]; });
+    (l[4].match(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g) || []).forEach(function (f) { FLAG[f] = l[0]; });
+  });
+  var SUB_WORD = /^(subs?|subbed|subtitles?|subtitulado|legendado|stfr)$/;
+  /* one word that holds both: "engsub", "esubs", "arsub" */
+  var SUB_JOINED = /^(eng?|ara?|jap|fre|spa|ita|ger|rus|kor|chi|por)subs?$/;
+  var AUDIO_WORD = /^(dub|dubbed|dubs|audio|audios|dublado|doblaje|voice)$/;
+
+  function langsOf(o) {
+    var text = [o.name].concat(o.lines).join(' ');
+    var flags = (text.match(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g) || []);
+    /* "JAP+Sub" (Japanese, with subtitles) is not Japanese subtitles */
+    var plain = text.replace(/[\uD800-\uDFFF]/g, ' ').replace(/\+\s*subs?\b/gi, ' withsub ');
+    var words = plain.split(/[\s._()\[\]{}|\/,;:+&-]+/).filter(Boolean);
+    var lower = words.map(function (w) { return w.toLowerCase(); });
+    var out = { audio: [], subs: [], multiAudio: false, multiSubs: false, anySubs: false, dual: false };
+    var add = function (list, c) { if (c && list.indexOf(c) < 0) list.push(c); };
+    function langAt(i) {
+      var w = lower[i];
+      if (w == null) return '';
+      if (FULL[w]) return FULL[w];
+      if (!SHORT[w]) return '';
+      /* a short code counts in capitals (ITA, RUS), or beside another language or a sub/dub word */
+      var caps = words[i].length >= 3 && words[i] === words[i].toUpperCase() && !/^(ES|IT|DE|EN|AR|JA|KO|ZH|FR|PT|RU|UA)$/.test(words[i]);
+      var near = function (j) { var x = lower[j]; return x != null && (FULL[x] || SHORT[x] || SUB_WORD.test(x) || AUDIO_WORD.test(x) || x === 'sub'); };
+      return caps || near(i - 1) || near(i + 1) ? SHORT[w] : '';
+    }
+    var subList = false; /* after "sub:" every language is a subtitle */
+    for (var i = 0; i < lower.length; i++) {
+      var w = lower[i], next = lower[i + 1] || '', prev = lower[i - 1] || '';
+      if (w === 'dual' && next === 'audio') { out.dual = true; i++; continue; }
+      if (w === 'dual') { out.dual = true; continue; }
+      if ((w === 'multi' || w === 'multiple') && (next === 'audio' || next === 'audios')) { out.multiAudio = true; i++; continue; }
+      /* "Multiple Subtitle [ENG][ARA]…": the languages after it are subtitles */
+      if ((w === 'multi' || w === 'multiple') && SUB_WORD.test(next)) { out.multiSubs = true; subList = true; i++; continue; }
+      if (w === 'multisub' || w === 'multisubs' || w === 'msub' || w === 'msubs') { out.multiSubs = true; subList = true; continue; }
+      if (w === 'multi' || w === 'multidub' || w === 'multilang') { out.multiAudio = true; continue; }
+      if (w === 'vostfr' || w === 'vost') { add(out.subs, 'fr'); add(out.audio, 'orig'); continue; }
+      if (w === 'esub' || w === 'esubs') { add(out.subs, 'en'); continue; }
+      var joined = SUB_JOINED.exec(w);
+      if (joined) { add(out.subs, SHORT[joined[1]] || FULL[joined[1]] || (joined[1] === 'e' ? 'en' : '')); continue; }
+      if (w === 'withsub' || w === 'subbed' || w === 'hardsub') { out.anySubs = true; subList = false; continue; }
+      if (w === 'sub' || w === 'subs') { subList = !!langAt(i + 1); if (!subList) out.anySubs = true; continue; }
+      var c = langAt(i);
+      /* a list of subtitles goes on over region marks (POR-BR, SPA-LA) */
+      if (!c) { if (!SUB_WORD.test(w) && w.length > 2) subList = false; continue; }
+      if (subList || SUB_WORD.test(next)) add(out.subs, c);
+      else add(out.audio, c);
+    }
+    /* Torrentio's flags: the languages of the release. Ones already named as subtitles stay subtitles; with only
+       "Multi Subs" said, a flag cannot be told apart, so it is left out */
+    var subsOnly = /multi(ple)?[\s-]*sub/i.test(text) && !/dub|dual|multi(ple)?[\s-]*audio/i.test(text);
+    flags.forEach(function (f) { var c = FLAG[f]; if (c && out.subs.indexOf(c) < 0 && !subsOnly) add(out.audio, c); });
+    if (out.dual) {
+      /* two tracks: the original and a dub (English when none is named) */
+      add(out.audio, 'orig');
+      if (!out.audio.some(function (c) { return c !== 'orig'; })) add(out.audio, 'en');
+    }
+    if (out.subs.length || out.multiSubs) out.anySubs = true;
+    return out;
+  }
+
+  /* a file's own tracks, once read: kept by file (name and size), the last 400 */
+  var TRACKS_KEY = 'fileTracks';
+  var known = null;
+  function knownTracks() { if (!known) known = CS.cache.get(TRACKS_KEY) || {}; return known; }
+  function iso2(code) {
+    /* "spa-419", "pt-BR", "zh-Hans": the language part */
+    code = String(code || '').toLowerCase().split(/[-_]/)[0];
+    if (!code || code === 'und' || code === 'mul' || code === 'zxx') return '';
+    if (code.length === 2 && LANG_NAME[code]) return code;
+    var alias = { jpn: 'ja', zho: 'zh', fra: 'fr', deu: 'de', spa: 'es', ita: 'it', por: 'pt', rus: 'ru', ukr: 'uk', hin: 'hi', tur: 'tr', pol: 'pl', nld: 'nl', swe: 'sv', dan: 'da', nor: 'no', ces: 'cs', hun: 'hu', hrv: 'hr', tha: 'th', ind: 'id', fas: 'fa', kor: 'ko', ara: 'ar', eng: 'en',
+      nob: 'no', nno: 'no', nb: 'no', nn: 'no', fin: 'fi', gre: 'el', ell: 'el', heb: 'he', iw: 'he', rum: 'ro', ron: 'ro', may: 'ms', msa: 'ms', vie: 'vi', bul: 'bg', srp: 'sr', scc: 'sr', slo: 'sk', slk: 'sk', slv: 'sl', est: 'et', lav: 'lv', lit: 'lt', cat: 'ca', fil: 'tl', tgl: 'tl', ben: 'bn', urd: 'ur', baq: '', eus: '', glg: '', fre: 'fr', ger: 'de', dut: 'nl', cze: 'cs', chi: 'zh', per: 'fa', tam: 'ta', tel: 'te' };
+    if (alias[code] !== undefined) return alias[code];
+    return SHORT[code] || FULL[code] || '';
+  }
+
+  CS.streams = {
+    parse: parse,
+    langsOf: langsOf,
+    langName: function (c) { return LANG_NAME[c] || c; },
+    /* a played file's own track list (mkvindex.js): its audio languages and the subtitles inside it, kept for next time */
+    remember: function (o, tracks) {
+      if (!o || !tracks || !tracks.length || !(o.file || o.lines && o.lines[0])) return;
+      var a = [], s = [];
+      tracks.forEach(function (t) {
+        var c = iso2(t.lang);
+        if (t.type === 2 && c && a.indexOf(c) < 0) a.push(c);
+        if (t.type === 17 && !t.forced && c && s.indexOf(c) < 0) s.push(c);
+      });
+      var all = knownTracks(), key = sameFile(o);
+      all[key] = { a: a, s: s, t: Date.now() };
+      var keys = Object.keys(all);
+      if (keys.length > 400) keys.sort(function (x, y) { return all[x].t - all[y].t; }).slice(0, keys.length - 400).forEach(function (k) { delete all[k]; });
+      CS.cache.set(TRACKS_KEY, all);
+      o.langs = { audio: a.length ? a : o.langs.audio, subs: s, sure: true, anySubs: s.length > 0, multiAudio: false, multiSubs: false };
+    },
+    /* every add-on's answer -> one ordered list. Torrentio copies already offered through ⚡ are hidden, unless keepCopies
+       (⚡ just failed — the PC went off — so the direct copy must be there to pick). The same for copies of what the cloud
+       add-on offers, which itself gives way to ⚡ */
+    order: function (raw, keepCopies) {
+      var list = raw.map(parse).filter(function (o) { return !o.why; });
+      if (!keepCopies) {
+        var fast = {}, cloud = {};
+        list.forEach(function (o) { if (o.speeder) fast[sameFile(o)] = 1; else if (o.cloud) cloud[sameFile(o)] = 1; });
+        list = list.filter(function (o) {
+          if (o.speeder) return true;
+          if (fast[sameFile(o)]) return false;
+          return o.cloud || !cloud[sameFile(o)];
+        });
+      }
+      list.forEach(function (o, i) { o._i = i; o._rank = rank(o); });
+      list.sort(function (a, b) { return b._rank - a._rank || a._i - b._i; });
+      return list;
+    },
+    /* for a download: the direct copy of each file instead of its copy through the PC (⚡), so it goes on away from home
+       and with the PC off. A file offered only through ⚡ stays, after the direct ones */
+    forDownload: function (raw) {
+      var all = CS.streams.order(raw, true), direct = {};
+      all.forEach(function (o) { if (!o.speeder) direct[sameFile(o)] = 1; });
+      var viaPc = all.filter(function (o) { return o.speeder && !direct[sameFile(o)]; });
+      return all.filter(function (o) { return !o.speeder; }).concat(viaPc);
+    },
+    playUrl: function (o) {
+      if (o.url) return o.url;
+      if (o.infoHash) {
+        var srv = CS.pcUrl(CS.config.ports.stremioServer);
+        if (!srv) return '';
+        var which = o.fileIdx != null ? o.fileIdx : o.file ? encodeURIComponent(o.file) : -1;
+        return srv + '/' + o.infoHash + '/' + which;
+      }
+      return '';
+    },
+    /* what to remember about a choice, to pick the same kind next time */
+    memo: function (o) { return { addonId: o.addonId, bingeGroup: o.bingeGroup, res: o.res, dv: o.dv, group: o.group, speeder: o.speeder }; },
+    pickLike: function (list, memo) {
+      if (!list.length) return null;
+      if (!memo) return list[0];
+      var best = null, bestScore = -1;
+      /* the same release through the PC, the cloud add-on or directly */
+      function release(g) { return (g || '').replace(/^(speeder|cloud)\|/, ''); }
+      list.forEach(function (o) {
+        var sc = 0;
+        if (memo.bingeGroup && release(o.bingeGroup) === release(memo.bingeGroup)) sc += 100;
+        if (memo.group && o.group && o.group.toLowerCase() === (memo.group || '').toLowerCase()) sc += 40;
+        if (o.res === memo.res) sc += 20;
+        if (o.dv === memo.dv) sc += 6;
+        if (o.speeder) sc += 8;
+        else if (o.cloud) sc += 7;
+        if (o.cached === true) sc += 4;
+        if (sc > bestScore) { bestScore = sc; best = o; }
+      });
+      return best;
+    },
+    badges: function (o) {
+      var b = [];
+      if (o.res) b.push(o.res === 2160 ? '4K' : o.res + 'p');
+      if (o.dv) b.push('Dolby Vision');
+      else if (o.hdr10p) b.push('HDR10+');
+      else if (o.hdr) b.push('HDR');
+      if (o.atmos) b.push('Atmos');
+      else if (o.audio) b.push(o.audio);
+      if (o.size) b.push(CS.fmtSize(o.size));
+      return b;
+    }
+  };
+})();
