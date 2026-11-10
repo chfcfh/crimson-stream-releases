@@ -1,5 +1,5 @@
 {
- "version": "0.2.26",
+ "version": "0.2.27",
  "css": {
   "path": "app.css",
   "sha256": "2cb1218b3dd5bbde1ea2996d854cbdbebb7619b031e4f2610eb4e935927a2e80"
@@ -39,7 +39,7 @@
   },
   {
    "path": "js/streams.js",
-   "sha256": "36df4d7f11132b2f4c48b59999737334c9aec66aab0ca8ed310c0362a70191a0"
+   "sha256": "86b29892cf2a456d70a7a449534b0f4bc1f6d8d30be9b15a67496919680eca11"
   },
   {
    "path": "js/subs.js",
@@ -63,11 +63,11 @@
   },
   {
    "path": "js/player.js",
-   "sha256": "c568526f182f04ce2bdafe34b7ba11d22621623ddedc76093bfe3553f976f6c5"
+   "sha256": "04ffd476b394dbf5ec29dd7a357755d6ada30601c00505447ba6b4a3813866be"
   },
   {
    "path": "js/desktop.js",
-   "sha256": "664f757c86cf215d3be835e46f6ec828de591fa9b085aabbd25e2d1da5cf9638"
+   "sha256": "9a11c877f08bfd0ec475971f402e737e16217ecec1af97483b3d1b9b10bd07cb"
   },
   {
    "path": "js/roll.js",
@@ -75,7 +75,7 @@
   },
   {
    "path": "js/views.js",
-   "sha256": "204546b72d8b516a701fa9e2934ce8c71b7b755f45982aafe56f58f261094ef2"
+   "sha256": "94287d848af0ec907fc3c9e7790dbf27a9ecb54866162df985679aa1973376f4"
   },
   {
    "path": "js/update.js",
