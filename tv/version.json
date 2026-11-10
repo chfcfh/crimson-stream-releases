@@ -1,5 +1,5 @@
 {
- "version": "0.2.24",
+ "version": "0.2.25",
  "css": {
   "path": "app.css",
   "sha256": "7765f87ec2b1a55bd79dcc5302d3a70ebbcf3cb70ad4d6dde2baedc013b3d206"
@@ -43,7 +43,7 @@
   },
   {
    "path": "js/subs.js",
-   "sha256": "28e84c77a7a5de5bd6446a228e46b903ed80971315278161a9b3373cadd80113"
+   "sha256": "c4655d501746c0f8f8a8cd90b4a1a5e799f81cf5ea33d95927daf63f5a09da7b"
   },
   {
    "path": "js/linefit.js",
