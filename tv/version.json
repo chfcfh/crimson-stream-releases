@@ -1,5 +1,5 @@
 {
- "version": "0.2.27",
+ "version": "0.2.28",
  "css": {
   "path": "app.css",
   "sha256": "2cb1218b3dd5bbde1ea2996d854cbdbebb7619b031e4f2610eb4e935927a2e80"
@@ -11,7 +11,7 @@
  "scripts": [
   {
    "path": "js/config.js",
-   "sha256": "cbe1f2283a55e214efd707170e207431f097c32c1c3e42c27129335b6a2b2d0b"
+   "sha256": "69fdf69fc3c42ff782db44b7a52862271fdf98359d8f35e785e4e215a2e95d65"
   },
   {
    "path": "js/util.js",
@@ -23,7 +23,7 @@
   },
   {
    "path": "js/store.js",
-   "sha256": "737d89d3146e45ff11a5d3afce6577fb29534bbcf8b39b3f75c4bb61330b0189"
+   "sha256": "1b80bf2c3f5a77505d3bbecfcf25baa6e78f0618562bec2b0397213bd96338ab"
   },
   {
    "path": "js/api.js",
@@ -39,11 +39,11 @@
   },
   {
    "path": "js/streams.js",
-   "sha256": "86b29892cf2a456d70a7a449534b0f4bc1f6d8d30be9b15a67496919680eca11"
+   "sha256": "47add15d5833657fb93a1fcbc6fe38799e546cd478a579a3822ea533f6c013d8"
   },
   {
    "path": "js/subs.js",
-   "sha256": "c4655d501746c0f8f8a8cd90b4a1a5e799f81cf5ea33d95927daf63f5a09da7b"
+   "sha256": "deafa9d5375ba5fcaf8137516a0bcb55a063ede247502093c87707376ffb8cb9"
   },
   {
    "path": "js/linefit.js",
@@ -59,15 +59,15 @@
   },
   {
    "path": "js/session.js",
-   "sha256": "a18ba6a341bc58a28e6da48a6055d161a9d93680bf5109708675c9f0af847592"
+   "sha256": "6441572e272e058f149b6426c307c59f063fb2dbb4991d5eded410e556272ff0"
   },
   {
    "path": "js/player.js",
-   "sha256": "04ffd476b394dbf5ec29dd7a357755d6ada30601c00505447ba6b4a3813866be"
+   "sha256": "1331a3ce7a4d13f06179638521a50875b0ed1f5b4899122fa33ff5c7fb393f2a"
   },
   {
    "path": "js/desktop.js",
-   "sha256": "9a11c877f08bfd0ec475971f402e737e16217ecec1af97483b3d1b9b10bd07cb"
+   "sha256": "569ca6fc5b1733606ed933ae9158d34f1ad2d040a299e7082db64a91c3bfa040"
   },
   {
    "path": "js/roll.js",
@@ -75,7 +75,7 @@
   },
   {
    "path": "js/views.js",
-   "sha256": "94287d848af0ec907fc3c9e7790dbf27a9ecb54866162df985679aa1973376f4"
+   "sha256": "c099456e2348504f9d1e85b89e748e60406d214261500c82ee71b793caea46bb"
   },
   {
    "path": "js/update.js",
