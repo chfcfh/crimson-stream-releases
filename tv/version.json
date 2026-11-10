@@ -1,5 +1,5 @@
 {
- "version": "0.2.18",
+ "version": "0.2.19",
  "css": {
   "path": "app.css",
   "sha256": "7765f87ec2b1a55bd79dcc5302d3a70ebbcf3cb70ad4d6dde2baedc013b3d206"
@@ -43,7 +43,7 @@
   },
   {
    "path": "js/subs.js",
-   "sha256": "c2975f94ace2667d38dfaf2c06607b18b93aa8fc723a131e05307b02bd405c71"
+   "sha256": "bed4c78ff54d215a397a03af0010c8a5c37476188bc0f10d143b8004f75dd28b"
   },
   {
    "path": "js/linefit.js",
@@ -59,7 +59,7 @@
   },
   {
    "path": "js/player.js",
-   "sha256": "9c7b694a8493fae3c172d46fd6c41c056dd9dbc66cc58f0be7efd4bd4f94113e"
+   "sha256": "8fcbcd4aa885a1618944da982bd90619f368c3f0a9f1faf4c4ab6cc755ec4181"
   },
   {
    "path": "js/desktop.js",
