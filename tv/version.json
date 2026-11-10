@@ -1,8 +1,8 @@
 {
- "version": "0.2.25",
+ "version": "0.2.26",
  "css": {
   "path": "app.css",
-  "sha256": "7765f87ec2b1a55bd79dcc5302d3a70ebbcf3cb70ad4d6dde2baedc013b3d206"
+  "sha256": "2cb1218b3dd5bbde1ea2996d854cbdbebb7619b031e4f2610eb4e935927a2e80"
  },
  "body": {
   "path": "body.html",
@@ -15,15 +15,15 @@
   },
   {
    "path": "js/util.js",
-   "sha256": "7c0c2f329d9b62c3f5f3d7bc00ba3de6f3a50e48e96c7bd97d36dd257943af0c"
+   "sha256": "2111362e4fe63d64704ba11f26a183bf0c8953f6ffaadeb02bdf67f688fbb934"
   },
   {
    "path": "js/nav.js",
-   "sha256": "031cb6cf3c745ba8a4f4ae944e445ddf4709178c33c4d411d6968232926bdf8b"
+   "sha256": "1438856d30666119233d26fd7ce9d2feb882fbcf20effad82fe384f7eeb0d56d"
   },
   {
    "path": "js/store.js",
-   "sha256": "96e4184a5b12161ebf92a34639866c2063e87fff1814e6d8f4a4e7cfda3e3310"
+   "sha256": "737d89d3146e45ff11a5d3afce6577fb29534bbcf8b39b3f75c4bb61330b0189"
   },
   {
    "path": "js/api.js",
@@ -39,7 +39,7 @@
   },
   {
    "path": "js/streams.js",
-   "sha256": "25de09ab7660b585de90ecad8e935994fd56a313468434343b2c52bdc53bcdbb"
+   "sha256": "36df4d7f11132b2f4c48b59999737334c9aec66aab0ca8ed310c0362a70191a0"
   },
   {
    "path": "js/subs.js",
@@ -63,11 +63,11 @@
   },
   {
    "path": "js/player.js",
-   "sha256": "232f0f12c5792a63a463db517d7bb9d6e24e46967a404915e533fa8899e51cde"
+   "sha256": "c568526f182f04ce2bdafe34b7ba11d22621623ddedc76093bfe3553f976f6c5"
   },
   {
    "path": "js/desktop.js",
-   "sha256": "9dd6db863678c2e1264d0b91cefa878514074c5bbb9c8f70adfa614bb9ec6ba1"
+   "sha256": "664f757c86cf215d3be835e46f6ec828de591fa9b085aabbd25e2d1da5cf9638"
   },
   {
    "path": "js/roll.js",
@@ -75,11 +75,11 @@
   },
   {
    "path": "js/views.js",
-   "sha256": "998c5dcd3e3cbab932726b31de5e9e53d4923a497ba49fd75276932fa7c90a46"
+   "sha256": "204546b72d8b516a701fa9e2934ce8c71b7b755f45982aafe56f58f261094ef2"
   },
   {
    "path": "js/update.js",
-   "sha256": "72887e76d3c2ce1d0858d8e24c516c090a50c09e2cefb0c0e11ac94115dac033"
+   "sha256": "1781a12264002b56f81ad24442b6fe3ece4fd1a88a2bf572cdde2925f29c12ea"
   },
   {
    "path": "js/main.js",
