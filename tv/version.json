@@ -1,5 +1,5 @@
 {
- "version": "0.2.29",
+ "version": "0.2.30",
  "css": {
   "path": "app.css",
   "sha256": "2cb1218b3dd5bbde1ea2996d854cbdbebb7619b031e4f2610eb4e935927a2e80"
@@ -67,15 +67,19 @@
   },
   {
    "path": "js/desktop.js",
-   "sha256": "7862a6d535d61be7e67ac3df88d90f2c86af398fdebefd526d1501e59a2cf565"
+   "sha256": "8b8fdce3495771d245a195b19ec3b8dff7a599bfa6d4476f7da72f65b442f81c"
   },
   {
    "path": "js/roll.js",
    "sha256": "5f672b46e251d0c9ebe32be685882782f9f158a68a8654f3df6bb843134ed7cb"
   },
   {
+   "path": "js/findbar.js",
+   "sha256": "d8b48ead636a218273a7183d4a33fd61ea405b4c49872b8491d42ec8b703a89f"
+  },
+  {
    "path": "js/views.js",
-   "sha256": "4bf15c4cb8498f0235cb4d226152acda52aaf37bde5c03d5b5046f0530fda3e6"
+   "sha256": "46bb46c03112b1e602387d24c918ac2f5e677ef8ba2a9f4ba92f6334f035421d"
   },
   {
    "path": "js/update.js",
