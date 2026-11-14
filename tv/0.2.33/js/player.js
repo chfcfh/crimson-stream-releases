@@ -656,6 +656,105 @@
     leave(false).then(function () { CS.player.close(); CS.views.streams(me.meta, me.video, { failed: me.stream }); });
   }
 
+  /* ---------- coming back after a cut ---------- */
+  /* Windows plays with mpv, which reads up to two minutes ahead and, when the connection drops or brings nothing for 30 s,
+     reconnects by itself from the same spot, so a short cut at home is never seen there. The TV's own player does neither: it
+     waits on «يحمّل…» until it gives up, then fires an error (a friend's TV, 2026-11-14: cut 71 s in, out after the retry, while
+     his PC on the same network played on). So the app does it: a wait that brings no data reopens the same source from the
+     same second, and so does an error.
+     The reopening goes to TorBox's own file address once the app knows it. A Torrentio source opens through two hops (Torrentio,
+     then TorBox's API), and reopening through them asks both again, which is what came back refused on that TV. The address
+     is learnt once, a few seconds into the video, with a one-byte read (as the file's index reads do). A clip of Torrentio's in
+     its place is never kept, and an address that fails gives way to the add-on's link again. It holds the account's key:
+     never logged */
+  var WAITS = [1500, 5000, 10000, 20000, 30000]; /* the tries after a cut, and the wait before each */
+  var STUCK_MS = 15000; /* a wait that brings nothing this long is a dead connection */
+  function hostOf(u) { return ((/^https?:\/\/([^\/?#]+)/i.exec(u || '') || [])[1] || '').toLowerCase(); }
+  function noticeLink(u) { return /torrentio/.test(hostOf(u)) && /\/videos\/[^\/?#]+\.mp4/i.test(u); }
+  function arDigits(n) { return String(n).replace(/\d/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.charAt(+d); }); }
+  function learnFinal(me) {
+    var url = CS.streams.playUrl(me.stream);
+    if (P !== me || me.notice || me.stream.speeder || !me.stream.url || !/^https?:/i.test(url) || typeof fetch === 'undefined') return;
+    var c = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timer = setTimeout(function () { if (c) c.abort(); }, 20000);
+    fetch(url, { headers: { Range: 'bytes=0-0' }, signal: c ? c.signal : undefined, cache: 'no-store' }).then(function (r) {
+      clearTimeout(timer);
+      var to = r.url || '';
+      r.arrayBuffer().catch(function () { /* one byte, or none */ });
+      if (P !== me) return;
+      if (r.status !== 206 || !to || hostOf(to) === hostOf(url) || noticeLink(to)) { CS.log('own address not kept', r.status, hostOf(to)); return; }
+      me.final = to;
+      me.finalAt = Date.now();
+      me.finalBad = false;
+      CS.log('own address kept', hostOf(to));
+    }, function (e) { clearTimeout(timer); if (P === me) CS.log('own address not learnt', e.message || e.name); });
+  }
+  /* the end of what is loaded from where the video stands: it grows while data comes */
+  function bufEnd() {
+    try {
+      var b = v.buffered, t = v.currentTime;
+      for (var i = 0; i < b.length; i++) if (b.start(i) <= t + 1 && b.end(i) >= t - 0.5) return b.end(i);
+    } catch (e) { /* nothing loaded */ }
+    return 0;
+  }
+  function audioOn() {
+    var t = audioTracks();
+    for (var i = 0; i < t.length; i++) if (t[i].enabled) return i;
+    return -1;
+  }
+  /* the same source again from the same second, after a wait. false: no cut to come back from, or the tries are used up */
+  function reconnect(me, why) {
+    if (P !== me || !me.started || me.notice || me.ended) return false;
+    if (me.retryTimer) return true; /* one is on its way */
+    if ((me.retries || 0) >= WAITS.length) return false;
+    if (me.viaFinal && !me.resumed) me.finalBad = true; /* TorBox's own address failed before the video came back */
+    var wait = WAITS[me.retries || 0];
+    me.retries = (me.retries || 0) + 1;
+    me.keepAudio = audioOn();
+    spin(true, 'انقطع الاتصال — نعيد المحاولة (' + me.retries + ' من ' + WAITS.length + ')…');
+    CS.log('reconnect', me.retries, 'of', WAITS.length, '(' + why + ')', 'in', wait + 'ms');
+    me.retryTimer = setTimeout(function () {
+      me.retryTimer = 0;
+      if (P !== me) return;
+      var own = !!me.final && !me.finalBad && Date.now() - me.finalAt < 60 * 60 * 1000;
+      me.resume = v.seeking && v.currentTime > 1 ? v.currentTime : (me.lastTime || 0); /* a jump the viewer made while it waited */
+      me.viaFinal = own;
+      me.resumed = false;
+      me.reopened = true;
+      me.retryAt = Date.now();
+      CS.log('reopening from', Math.round(me.resume), own ? 'on TorBox\'s own address' : 'through the add-on');
+      v.src = own ? me.final : CS.streams.playUrl(me.stream);
+      v.play().catch(function (e) { CS.log('play refused', e.message); });
+    }, wait);
+    return true;
+  }
+  /* once a second while a video is on. Waiting (not paused by the viewer) with nothing more loaded and the time standing still
+     for 15 s is a connection that died. A slow connection still brings data and is left to fill up. A torrent through the PC's
+     Stremio server waits for its peers, as before */
+  function watch(me) {
+    if (P !== me || me.ended || !me.stream.url) return;
+    var now = Date.now(), end = bufEnd(), t = v.currentTime || 0;
+    var moved = end > (me.seenEnd || 0) + 0.05 || Math.abs(t - (me.seenTime || 0)) > 0.05;
+    me.seenEnd = end;
+    me.seenTime = t;
+    var waiting = me.started && !me.notice && !v.paused && !v.ended && !v.error && v.readyState < 3;
+    if (moved || !waiting || !me.dataAt) { me.dataAt = now; return; }
+    if (me.retryTimer || now - me.dataAt < STUCK_MS || now - (me.retryAt || 0) < 2 * STUCK_MS) return;
+    CS.log('nothing loaded for', Math.round((now - me.dataAt) / 1000) + 's while waiting at', Math.round(t));
+    me.dataAt = now;
+    if (!reconnect(me, 'no data')) giveUp(me, null);
+  }
+  function giveUp(me, err) {
+    if (P !== me) return;
+    spin(false);
+    var viaTorBox = /torrentio/i.test(me.stream.addonName || '') && !me.stream.speeder;
+    var tries = 'بعد ' + arDigits(WAITS.length) + ' محاولات';
+    CS.toast(me.started && viaTorBox ? 'المصدر انقطع وما رجع ' + tries + ' — الاتصال بـ TorBox يطيح (نت البيت أو TorBox نفسه). جرّب بعد شوي أو اختر مصدر ثاني'
+      : me.started ? 'المصدر انقطع وما رجع ' + tries + ' — اختر مصدر ثاني'
+      : err && err.code === 4 ? 'التلفزيون ما يشغّل هالملف — اختر مصدر ثاني' : 'المصدر وقف — اختر مصدر ثاني', 9000);
+    leave(false).then(function () { CS.player.close(); CS.views.streams(me.meta, me.video, { failed: me.stream }); });
+  }
+
   /* ---------- saving progress ---------- */
   function save(force) {
     if (!P || !v.duration || P.ended || P.notice) return Promise.resolve();
@@ -717,6 +816,9 @@
     me.renderer.stop();
     clearInterval(saveTick);
     clearInterval(me.nextTimer);
+    clearInterval(me.watchTimer);
+    clearTimeout(me.retryTimer);
+    me.retryTimer = 0;
     try { v.pause(); } catch (e) { /* already stopped */ }
     v.removeAttribute('src');
     try { v.load(); } catch (e) { /* nothing loaded */ }
@@ -814,7 +916,28 @@
       v.addEventListener('seeking', function () { if (P) spin(true, 'يحمّل…'); });
       v.addEventListener('loadedmetadata', function () { if (P && !P.started && spinning()) spin(true, 'يجهّز التشغيل…'); });
       v.addEventListener('progress', function () { if (P && P.started && spinning()) el('player-spin-text').textContent = loadingText(); });
-      v.addEventListener('playing', function () { spin(false); if (P && osd.classList.contains('on') && !panelOpen()) showOsd(2500); if (P && !P.started) { P.started = true; CS.log('playing', Math.round(performance.now() - P.t0) + 'ms after the press', v.videoWidth + 'x' + v.videoHeight); } });
+      v.addEventListener('playing', function () {
+        spin(false);
+        if (!P) return;
+        var me = P;
+        if (osd.classList.contains('on') && !panelOpen()) showOsd(2500);
+        if (me.retryTimer) { /* it came back by itself before the reconnect */
+          clearTimeout(me.retryTimer);
+          me.retryTimer = 0;
+          me.retries = Math.max(0, (me.retries || 1) - 1);
+          CS.log('came back by itself, no reconnect');
+        }
+        if (me.reopened && !me.resumed) {
+          CS.log('back on after the reconnect', me.viaFinal ? 'on TorBox\'s own address' : 'through the add-on');
+          if (!me.viaFinal) learnFinal(me); /* a fresh own address for the next cut */
+        }
+        me.resumed = true;
+        if (!me.started) {
+          me.started = true;
+          CS.log('playing', Math.round(performance.now() - me.t0) + 'ms after the press', v.videoWidth + 'x' + v.videoHeight);
+          setTimeout(function () { if (P === me && !me.final) learnFinal(me); }, 4000); /* the player has its start by then */
+        }
+      });
       v.addEventListener('canplay', function () { spin(false); });
       v.addEventListener('seeked', function () { spin(false); if (P) P.renderer.clock.reset(); });
       v.addEventListener('pause', function () { if (P) { showOsd(0); P.renderer.clock.reset(); } });
@@ -846,7 +969,7 @@
       });
       v.addEventListener('loadedmetadata', function () {
         if (!P) return;
-        CS.log('file opened', Math.round(performance.now() - P.t0) + 'ms', 'duration ' + Math.round(v.duration) + 's', 'audio tracks ' + (v.audioTracks ? v.audioTracks.length : 'n/a'));
+        CS.log(P.reopened ? 'file reopened' : 'file opened', (P.reopened ? Date.now() - P.retryAt : Math.round(performance.now() - P.t0)) + 'ms', 'duration ' + Math.round(v.duration) + 's', 'audio tracks ' + (v.audioTracks ? v.audioTracks.length : 'n/a'));
         if (isNotice(P)) {
           P.notice = true;
           P.opened = true;
@@ -854,8 +977,14 @@
           CS.toast('هذا مو الحلقة: TorBox ما سلّم الملف، فـ Torrentio شغّل مقطع ٣٠ ثانية مكتوب فيه السبب. بعده ' + (P.alternates && P.alternates.length ? 'نجرّب المصدر اللي بعده' : 'نرجعك للمصادر'), 12000, 'error');
           return;
         }
-        if (P.resume && P.resume > 5 && P.resume < v.duration - 30) v.currentTime = P.resume;
+        var r = P.resume || 0;
+        /* a reopening after a cut goes back to its second wherever it is; a first start skips a resume too near either end */
+        if (P.reopened ? r > 1 && r < v.duration - 2 : r > 5 && r < v.duration - 30) v.currentTime = r;
         P.opened = true;
+        if (P.reopened && P.keepAudio >= 0) { /* a reopened file starts on its first track again: the one that was on comes back */
+          var tr = audioTracks(), k = P.keepAudio;
+          if (tr[k] && !tr[k].enabled) { tr.forEach(function (x, j) { x.enabled = j === k; }); CS.log('audio track kept', k); }
+        }
         chooseAudio(P);
       });
       v.addEventListener('error', function () {
@@ -863,31 +992,10 @@
         var err = v.error || {};
         CS.log('video error', err.code, err.message || '');
         var me = P;
-        /* it was playing and stopped (Wi-Fi, the PC's ⚡ restarting, TorBox refusing for a moment): try the same source again from
-           the same spot, three times with longer waits. A refusal that lasts a little while (seen: the asks again right after a cut
-           were refused) gets time to pass */
-        var WAITS = [3000, 10000, 25000];
-        if (me.started && !me.notice && (me.retries || 0) < WAITS.length) {
-          var wait = WAITS[me.retries || 0];
-          me.retries = (me.retries || 0) + 1;
-          var at = me.lastTime || 0;
-          spin(true, 'انقطع الاتصال — نعيد المحاولة (' + me.retries + ' من ' + WAITS.length + ')…');
-          CS.log('retrying the source', me.retries, 'from', Math.round(at), 'in', wait + 'ms');
-          setTimeout(function () {
-            if (P !== me) return;
-            me.resume = at;
-            v.src = CS.streams.playUrl(me.stream);
-            v.play().catch(function (e) { CS.log('play refused', e.message); });
-          }, wait);
-          return;
-        }
+        /* it was playing and stopped (Wi-Fi, the router, the PC's ⚡ restarting, TorBox refusing for a moment): reconnect() */
+        if (reconnect(me, 'error ' + err.code)) return;
         if (!me.started && nextSource(me, 'error ' + err.code)) return;
-        spin(false);
-        var viaTorBox = /torrentio/i.test(me.stream.addonName || '') && !me.stream.speeder;
-        CS.toast(me.started && viaTorBox ? 'المصدر انقطع وما رجع بعد ٣ محاولات — TorBox رفض يكمّل (الحساب أو النت). جرّب بعد شوي أو اختر مصدر ثاني'
-          : me.started ? 'المصدر انقطع وما رجع بعد ٣ محاولات — اختر مصدر ثاني'
-          : err.code === 4 ? 'التلفزيون ما يشغّل هالملف — اختر مصدر ثاني' : 'المصدر وقف — اختر مصدر ثاني', 9000);
-        leave(false).then(function () { CS.player.close(); CS.views.streams(me.meta, me.video, { failed: me.stream }); });
+        giveUp(me, err);
       });
     },
     playing: function () { return P; },
@@ -910,6 +1018,7 @@
         };
         P.alternates = opts.alternates || null;
         P.hopped = !!opts.hopped; /* this one took the place of a source with no track in the wanted language */
+        (function (me) { me.watchTimer = setInterval(function () { watch(me); }, 1000); })(P);
         (function (me) { CS.session.audioWanted(meta).then(function (w) { if (P === me) { me.wantAudio = w; chooseAudio(me); } }); })(P);
         if (P.alternates && P.alternates.length) {
           var me = P;
