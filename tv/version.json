@@ -1,8 +1,8 @@
 {
- "version": "0.2.36",
+ "version": "0.2.37",
  "css": {
   "path": "app.css",
-  "sha256": "e369b8e044aa99bf08fe2dbe56cd53c167031afe1a22bcc4f8450493f2d8b38b"
+  "sha256": "e68f3fe718f58c9a2b73257badd9f1b600c12b2dcadc52f4b841e3ecce3da87d"
  },
  "body": {
   "path": "body.html",
@@ -15,7 +15,7 @@
   },
   {
    "path": "js/util.js",
-   "sha256": "38c27e2efab2dc3fe47d010bd8b031c1d8856dfb775bb7074e130776d0413b89"
+   "sha256": "47388209bd7aab95281684e2d08028c0de12ac8b022a21914fc722ee2233ca90"
   },
   {
    "path": "js/nav.js",
@@ -79,7 +79,7 @@
   },
   {
    "path": "js/views.js",
-   "sha256": "673b77eb1a77eb3b5d03db016479665c03c39557ee0adbe435fdfd7182df8eee"
+   "sha256": "18521000a1c8a1892a6197e8f3d173ec6b6b3f3074810529101a9e010096b17d"
   },
   {
    "path": "js/update.js",
