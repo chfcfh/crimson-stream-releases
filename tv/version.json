@@ -1,8 +1,8 @@
 {
- "version": "0.2.32",
+ "version": "0.2.33",
  "css": {
   "path": "app.css",
-  "sha256": "ad9ff17f038be0cc21103f3ce249234afc458b2c0e9268802c8da37b0c1a7349"
+  "sha256": "e369b8e044aa99bf08fe2dbe56cd53c167031afe1a22bcc4f8450493f2d8b38b"
  },
  "body": {
   "path": "body.html",
@@ -19,7 +19,7 @@
   },
   {
    "path": "js/nav.js",
-   "sha256": "1438856d30666119233d26fd7ce9d2feb882fbcf20effad82fe384f7eeb0d56d"
+   "sha256": "746e867f9c3d1ee3e69d49e3bf77873dfa834e8c1ab1e127038c2e693c6af91d"
   },
   {
    "path": "js/store.js",
