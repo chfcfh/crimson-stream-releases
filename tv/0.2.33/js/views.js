@@ -1008,47 +1008,6 @@
       });
     };
   }
-  /* «مكتبتي» (the owner's wish, 2026-11-14): the shows in this profile's library that are on now, the soonest episode first. The hub is asked
-     8 at a time (/cat/airing/mine); it knows IMDb and Kitsu ids. One answer for all: the posters are as the library has them */
-  function libraryShows() {
-    var own = {}, ids = [];
-    CS.lib.libraryList().forEach(function (it) {
-      if (it.type === 'movie' || own[it._id] || !/^(tt\d+|kitsu:\d+)$/.test(it._id || '')) return;
-      own[it._id] = it;
-      ids.push(it._id);
-    });
-    return { own: own, ids: ids.slice(0, 96) };
-  }
-  function airingMine(shows) {
-    var done = false;
-    return function () {
-      if (done || !shows.ids.length) return Promise.resolve([]);
-      done = true;
-      var parts = [], failed = 0;
-      for (var i = 0; i < shows.ids.length; i += 8) parts.push(shows.ids.slice(i, i + 8));
-      return Promise.all(parts.map(function (p) {
-        return CS.fetchJson(CS.config.hubUrl + '/cat/airing/mine?ids=' + encodeURIComponent(p.join(','))).then(function (r) { return (r && r.metas) || []; },
-          function () { failed++; return []; });
-      })).then(function (lists) {
-        if (failed === parts.length) throw new Error('hub');
-        var out = [], twice = {};
-        lists.forEach(function (l) {
-          l.forEach(function (m) {
-            var it = m && shows.own[m.id];
-            /* one show kept under both its Kitsu and its IMDb id: once */
-            if (!it || twice[m.imdb || m.id]) return;
-            twice[m.imdb || m.id] = 1;
-            m.type = it.type;
-            if (it.name) m.name = it.name;
-            if (it.poster) m.poster = it.poster;
-            if (m.arDescription && !arabicNow(m)) { m.description = m.arDescription; m.arabic = true; }
-            out.push(m);
-          });
-        });
-        return CS.soonestFirst(out);
-      });
-    };
-  }
   function airing() {
     var el = section('home');
     var hero = h('div.hero', null, [h('div.hero-logo'), h('div.hero-line'), h('p.hero-desc')]);
@@ -1072,7 +1031,7 @@
     if (window.CS_ANDROID) hero.onclick = function () { var c = CS.nav.current(); if (c && c._meta) c.click(); };
     CS.nav.push(screen);
     setBg(BG_DEFAULT, true);
-    var KINDS = [['الكل', ['series', 'anime']], ['مسلسلات', ['series']], ['أنمي', ['anime']], ['مكتبتي', 'mine']];
+    var KINDS = [['الكل', ['series', 'anime']], ['مسلسلات', ['series']], ['أنمي', ['anime']]];
     var chips = KINDS.map(function (k, i) {
       var b = h('button.chip.f' + (i ? '' : '.on'), { onclick: function () { pick(k[1], b); } }, k[0]);
       return b;
@@ -1100,8 +1059,7 @@
       } else CS.nav.refocus();
     }
     function draw(kinds) {
-      var shows = kinds === 'mine' ? libraryShows() : null;
-      var mine = ++asked, more = shows ? airingMine(shows) : airingSource(kinds);
+      var mine = ++asked, more = airingSource(kinds);
       screen.heroSet = false;
       var grid = h('div.grid.genre-grid', null, CS.skel.cards(7));
       track.appendChild(grid);
@@ -1111,9 +1069,7 @@
         if (mine !== asked || !grid.isConnected) return;
         grid.innerHTML = '';
         if (!metas.length) {
-          grid.appendChild(CS.emptyState(!shows ? { icon: 'search', title: 'ما فيه شي يعرض الآن', text: 'جرّب بعدين.' }
-            : !shows.ids.length ? { icon: 'heart', title: 'ما في مكتبتك مسلسلات ولا أنمي', text: 'أضف اللي تتابعه بزر «أضف لمكتبتي» من صفحته، ويطلع هنا لما تنزل حلقاته.' }
-            : { icon: 'heart', title: 'ولا شي من مكتبتك يعرض الآن', text: 'أول ما يرجع واحد منها وتنزل له حلقة، أو يقرب موسمه الجديد، يطلع هنا.' }));
+          grid.appendChild(CS.emptyState({ icon: 'search', title: 'ما فيه شي يعرض الآن', text: 'جرّب بعدين.' }));
           CS.nav.refocus();
           return;
         }

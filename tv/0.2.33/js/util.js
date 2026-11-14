@@ -85,12 +85,6 @@ CS.pager = function (fetchPage, shown, start, add, limit, seen) {
     return tryPage(3);
   };
 };
-/* «يعرض الآن» › «مكتبتي»: the soonest next episode first (one already out before one to come), those with no date last; the rest as they came */
-CS.soonestFirst = function (metas) {
-  return metas.map(function (m, i) { return { m: m, i: i, d: /^\d{4}-\d\d-\d\d$/.test(m.nextAir || '') ? m.nextAir : '~' }; })
-    .sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : a.i - b.i; })
-    .map(function (x) { return x.m; });
-};
 /* «يعرض الآن»: a show's next episode as people say it, from its date (YYYY-MM-DD, of the show's own country, as TMDB gives it).
    This week by its day, further by its date; '' when not known */
 CS.nextEpisodeWords = function (day, now) {
