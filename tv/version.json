@@ -1,8 +1,8 @@
 {
- "version": "0.2.37",
+ "version": "0.2.38",
  "css": {
   "path": "app.css",
-  "sha256": "e68f3fe718f58c9a2b73257badd9f1b600c12b2dcadc52f4b841e3ecce3da87d"
+  "sha256": "4f8fa2deb5ace9453a802255d96f73857951a811b18ef394ff77a6ee437dcaf5"
  },
  "body": {
   "path": "body.html",
@@ -15,7 +15,7 @@
   },
   {
    "path": "js/util.js",
-   "sha256": "47388209bd7aab95281684e2d08028c0de12ac8b022a21914fc722ee2233ca90"
+   "sha256": "9f812fd09e1fc8953cbbff8d7ccf46778859dae0a457786e9d08b939e2132eae"
   },
   {
    "path": "js/nav.js",
@@ -23,7 +23,7 @@
   },
   {
    "path": "js/store.js",
-   "sha256": "4f58813500f59bba954cb4be673ca65c86a4dfaf7b8f9601cdb38238fa0860df"
+   "sha256": "495f56937af5e87c6d56af8dbbef958a3fe1145b9977f50d4f292117921cc995"
   },
   {
    "path": "js/api.js",
@@ -43,7 +43,7 @@
   },
   {
    "path": "js/subs.js",
-   "sha256": "deafa9d5375ba5fcaf8137516a0bcb55a063ede247502093c87707376ffb8cb9"
+   "sha256": "088e28a3668fd47c6fb6312c4da4af807f2bdd7e29c4f20213e6db2bb6cb9fce"
   },
   {
    "path": "js/linefit.js",
@@ -63,11 +63,11 @@
   },
   {
    "path": "js/player.js",
-   "sha256": "614c1ccb60a22a36d3eee41be0d566278201376df292cf624a7655aae2c5ba64"
+   "sha256": "de9a7e91aadfade64e0fedb6f163bfbc6f61b525d26c346a245ab2266ae07223"
   },
   {
    "path": "js/desktop.js",
-   "sha256": "8b8fdce3495771d245a195b19ec3b8dff7a599bfa6d4476f7da72f65b442f81c"
+   "sha256": "e70490abbc038e47001d22c67b452c496279be833d1f1a9f95cfae233fa83497"
   },
   {
    "path": "js/roll.js",
@@ -78,8 +78,12 @@
    "sha256": "d8b48ead636a218273a7183d4a33fd61ea405b4c49872b8491d42ec8b703a89f"
   },
   {
+   "path": "js/together.js",
+   "sha256": "cdd49793d30f8844a205596028f86fc480e4fdf0f094e007888c2bd3b23be8bb"
+  },
+  {
    "path": "js/views.js",
-   "sha256": "18521000a1c8a1892a6197e8f3d173ec6b6b3f3074810529101a9e010096b17d"
+   "sha256": "91a5922a7e274d25e46e52d06a3d23ad55c14dc37a1c825d924606a2bee053f3"
   },
   {
    "path": "js/update.js",
@@ -87,7 +91,7 @@
   },
   {
    "path": "js/main.js",
-   "sha256": "1e8f29e3c7f6ce92895df70dc9ba9f6aa71cfd2b9243ac657e486b1f61c10c23"
+   "sha256": "1aa7dc175ddc562f54672fd4120bee758dfcf8aaac34f7b64f18c2e9d79c7c6c"
   }
  ]
 }
