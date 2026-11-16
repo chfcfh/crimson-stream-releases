@@ -1,0 +1,33 @@
+
+  <div id="bg"><div id="bg-art"></div><div id="bg-shade"></div></div>
+
+  <!-- every screen is a .screen; only the top one of the stack is shown and takes the remote -->
+  <main id="screens"></main>
+
+  <div id="player" class="hidden">
+    <video id="video" preload="auto"></video>
+    <div id="subs" dir="rtl"></div>
+    <div id="osd">
+      <div class="osd-top">
+        <div class="osd-title"><strong id="osd-name"></strong><span id="osd-sub"></span></div>
+        <div class="osd-badges" id="osd-badges"></div>
+      </div>
+      <div class="osd-bottom">
+        <div class="timeline" dir="ltr">
+          <span id="osd-cur">0:00</span>
+          <div class="bar f" id="osd-bar"><div class="buf" id="osd-buf"></div><div class="fill" id="osd-fill"></div><div class="knob" id="osd-knob"></div><div class="seek-tip" id="osd-tip"></div></div>
+          <span id="osd-dur">0:00</span>
+        </div>
+        <div class="osd-buttons" id="osd-buttons"></div>
+      </div>
+    </div>
+    <div id="player-spin" class="spin-wrap"><div class="eye-spin"></div><div class="spin-text" id="player-spin-text"></div></div>
+    <div id="next-card" class="hidden"></div>
+    <div id="panel" class="hidden"></div>
+    <div id="sub-nudge" class="hidden"></div>
+    <div id="debug" class="hidden" dir="ltr"></div>
+  </div>
+
+  <div id="toast"></div>
+
+  
