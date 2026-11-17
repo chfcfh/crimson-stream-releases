@@ -1,8 +1,8 @@
 {
- "version": "0.2.47",
+ "version": "0.2.48",
  "css": {
   "path": "app.css",
-  "sha256": "2bf84cd8b4d1cc1fdb9adbaa4387f9bf0c45269c3c07e9efba86736e2f6ddbcf"
+  "sha256": "ff3b8bba4a391331a8f4d8794b15c5d1ff33bc268bb7eb97801b3f9fc3596148"
  },
  "body": {
   "path": "body.html",
@@ -87,7 +87,11 @@
   },
   {
    "path": "js/sportworld.js",
-   "sha256": "beaeea885ef3e684fcf7744cf6a717f21e2a3d37d034310f9a304d6a6b8109e1"
+   "sha256": "dd97da72d84b65ce0bf4af7441ac964eea1f4ed2d733136be8ea38297723d6a8"
+  },
+  {
+   "path": "js/ufcworld.js",
+   "sha256": "36bac43fc65fcc866f7321825606a839e91441bbc35817815fd9a0a75834d94f"
   },
   {
    "path": "js/update.js",
