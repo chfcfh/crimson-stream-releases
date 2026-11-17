@@ -1,5 +1,5 @@
 {
- "version": "0.2.45",
+ "version": "0.2.46",
  "css": {
   "path": "app.css",
   "sha256": "2bf84cd8b4d1cc1fdb9adbaa4387f9bf0c45269c3c07e9efba86736e2f6ddbcf"
@@ -63,11 +63,11 @@
   },
   {
    "path": "js/player.js",
-   "sha256": "e265f8ad62ae5fd120cdbd5f6ff81107051e939207703f534431cc08fe9fe83d"
+   "sha256": "46d6ad1d4cffac872e049484d795df2c16c2ed2ae38445d269fef89298f90229"
   },
   {
    "path": "js/desktop.js",
-   "sha256": "4a6b1a37bbc53c9851e574b0e2242af88bc295cf76faf4254c970c032b1d19df"
+   "sha256": "16325e2dd7aa4e6ddd5f86cacabd739c5b3341984fb5b7b43cf456aafda87fc1"
   },
   {
    "path": "js/roll.js",
@@ -79,7 +79,7 @@
   },
   {
    "path": "js/together.js",
-   "sha256": "c7cb42a4cf088a5b894166e4b8f745979d78ecd74809d3833f2e8e4161c72044"
+   "sha256": "afd8faa6a1e0683a5733f8dd72641f3a983a5389af4ac799f4488155e2298f96"
   },
   {
    "path": "js/views.js",
