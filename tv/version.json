@@ -1,5 +1,5 @@
 {
- "version": "0.2.48",
+ "version": "0.2.49",
  "css": {
   "path": "app.css",
   "sha256": "ff3b8bba4a391331a8f4d8794b15c5d1ff33bc268bb7eb97801b3f9fc3596148"
@@ -75,7 +75,7 @@
   },
   {
    "path": "js/findbar.js",
-   "sha256": "1c3b62499ea4546901c197c08735049a4503c3e7e8852b724f3841cbc47ca131"
+   "sha256": "164af57b33c5f3d956d7cea190b12bfe727e51d5390e1a76420b458631df2ab2"
   },
   {
    "path": "js/together.js",
@@ -83,7 +83,7 @@
   },
   {
    "path": "js/views.js",
-   "sha256": "6d727cd9a7760dc965a975c26889482888eae79729a0acf00509136883596ef7"
+   "sha256": "3b8c0ec2b83c9659f75ba43e88e12da5dac2b5f46d68877e798c7006775f4773"
   },
   {
    "path": "js/sportworld.js",
