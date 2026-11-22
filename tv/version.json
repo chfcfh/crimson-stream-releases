@@ -1,8 +1,8 @@
 {
- "version": "0.2.51",
+ "version": "0.2.52",
  "css": {
   "path": "app.css",
-  "sha256": "eeba02c201ea641d676e280ade55eadcf82bdfbaea67c3be9bf38ed0e03dd0a2"
+  "sha256": "d6bc5d048d1a6cf5c53e6b600eb197f41ed963f79a52a26a9c2b7e2b61822c51"
  },
  "body": {
   "path": "body.html",
@@ -23,7 +23,7 @@
   },
   {
    "path": "js/store.js",
-   "sha256": "3e29fa492ab29ac7a11ea02b1ea0f99f0511ab869f3e0de024d3108c11db2349"
+   "sha256": "8ee0c6aec721d5e929307b6e3661f67df20069f2010354584e0196364361cf00"
   },
   {
    "path": "js/api.js",
@@ -39,7 +39,7 @@
   },
   {
    "path": "js/streams.js",
-   "sha256": "c5b9e74baaf47d944ced78756942569d93b9fbf1e87da5aee24d2d4b3ed7e612"
+   "sha256": "9ab5371957296c7fdd50e094337ff5ace2b57200f3ad548b0179b3e5c16c28d5"
   },
   {
    "path": "js/subs.js",
@@ -67,11 +67,19 @@
   },
   {
    "path": "js/player.js",
-   "sha256": "a7a9a45a59c2d963e71eb612ae585f8f5c2646f971a47ebfe25179ee6ed1f906"
+   "sha256": "f5da07bd77638d1582dca850aa260517da87bd05a18135edfcc1f2690928ec01"
+  },
+  {
+   "path": "js/matchplay.js",
+   "sha256": "be64db22f4193319313151cc78fa496ba1bceeec6d96d4b8a4ccadf0d84db4b3"
+  },
+  {
+   "path": "js/replays.js",
+   "sha256": "b544bd84bb3200a8ea8027b12631a96a6120e1e52a6969a55142bfb0685d12cd"
   },
   {
    "path": "js/desktop.js",
-   "sha256": "db86a53a8af8d0d090f37088586e22b3fbec4a729f730bef476a43ed4b84e8a7"
+   "sha256": "47d73a224eb16786d89ff90c829400f09f7011c109ecfc8bf4941a199cd28216"
   },
   {
    "path": "js/roll.js",
@@ -83,15 +91,15 @@
   },
   {
    "path": "js/together.js",
-   "sha256": "afd8faa6a1e0683a5733f8dd72641f3a983a5389af4ac799f4488155e2298f96"
+   "sha256": "7d7847f3efdc1162d81777314a0c4f549341f0d5016ec2de6167fdec4293f5cc"
   },
   {
    "path": "js/views.js",
-   "sha256": "6ef62a817c1f4195dcf8d45561db359351b3b472368808c0c1b5df097717543a"
+   "sha256": "e7727c9450f238b11a3821764066d57dea731d74bad12ccdc4fcf017afad35d8"
   },
   {
    "path": "js/sportworld.js",
-   "sha256": "dd97da72d84b65ce0bf4af7441ac964eea1f4ed2d733136be8ea38297723d6a8"
+   "sha256": "d4c4f8748f0888557f1a93b709ae1e9dd583f0767b610cadfb30a192f8db6d20"
   },
   {
    "path": "js/ufcworld.js",
