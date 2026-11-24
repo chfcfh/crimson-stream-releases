@@ -1,5 +1,5 @@
 {
- "version": "0.2.55",
+ "version": "0.2.56",
  "css": {
   "path": "app.css",
   "sha256": "dcc9d185f15e23cd7caad641741c36ad2280b2f4983ac3b40d517f501452e5d0"
@@ -66,8 +66,12 @@
    "sha256": "0013cfa502ea28c61b278a6e7aae3f3ffd21b6b32d624da86cc82c6d58c3e29c"
   },
   {
+   "path": "js/livehls.js",
+   "sha256": "1070b05eebf82e8358b7368ff36f3ad19daa7f08566ee3713fcf446b8182cb6e"
+  },
+  {
    "path": "js/player.js",
-   "sha256": "e05713c0d18ca9f3280bbf6f3b5c76ca45f7cfb41c4e03d91298308268336e04"
+   "sha256": "b60f38c4a8f708878adf8474b4bbdf1c39d240d189396549a44fb5c0692a2b53"
   },
   {
    "path": "js/matchplay.js",
@@ -107,7 +111,7 @@
   },
   {
    "path": "js/update.js",
-   "sha256": "9313f988fffcbad5bda5caf9b5e5fa40ce0810a238b90578f1036c352a2b61ab"
+   "sha256": "e742156639b579145f630bc263697aecf5c9e108b42727fec80883e4ade17da9"
   },
   {
    "path": "js/sub.js",
