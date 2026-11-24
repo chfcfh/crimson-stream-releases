@@ -1,5 +1,5 @@
 {
- "version": "0.2.54",
+ "version": "0.2.55",
  "css": {
   "path": "app.css",
   "sha256": "dcc9d185f15e23cd7caad641741c36ad2280b2f4983ac3b40d517f501452e5d0"
@@ -111,7 +111,7 @@
   },
   {
    "path": "js/sub.js",
-   "sha256": "9d11f472c9e43ad945e35d814bc9516520bfb0cf0db4bfb66a6bd63a03b08e82"
+   "sha256": "8203d37d74dcd4dc50d07d94c1f1e041aa95627bc98610a8b1adebe5c1b8aa51"
   },
   {
    "path": "js/main.js",
