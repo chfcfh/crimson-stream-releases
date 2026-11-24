@@ -1,0 +1,121 @@
+{
+ "version": "0.2.54",
+ "css": {
+  "path": "app.css",
+  "sha256": "dcc9d185f15e23cd7caad641741c36ad2280b2f4983ac3b40d517f501452e5d0"
+ },
+ "body": {
+  "path": "body.html",
+  "sha256": "74dde28d9b494a8b53ab31ed6eac4930ab6c5ce93299f0d5011401fcc5a5ab64"
+ },
+ "scripts": [
+  {
+   "path": "js/config.js",
+   "sha256": "6957f8f2853bbd6b2de6c747e39a51cfc1646dce67b767323ea0198ddee9edb1"
+  },
+  {
+   "path": "js/util.js",
+   "sha256": "96097e1ebf2c0e3926c330e8b14d68ca45cf7b9d8bf83d9fb23a8641e17335b3"
+  },
+  {
+   "path": "js/nav.js",
+   "sha256": "31a53aaf744c7b09b4683715de7e31f3d0215dbb89fbc0694214a15f7e712211"
+  },
+  {
+   "path": "js/store.js",
+   "sha256": "304e968edcb163b59723d35a7f09e0adfa44a07f25b56cff0a5c56b9e04929fd"
+  },
+  {
+   "path": "js/api.js",
+   "sha256": "8e09b7d8ec0c5db4601ff0b44b7fb72adec061be6191b3cfd82aba034ae17bd4"
+  },
+  {
+   "path": "js/addons.js",
+   "sha256": "0e03a207778f42114cbc80b3e82800974440ee479c3943177c323929ca4107fc"
+  },
+  {
+   "path": "js/library.js",
+   "sha256": "b9b31e6f91222514bbb7c2373a72a3c336be688986d81deb67d107080ed544c3"
+  },
+  {
+   "path": "js/streams.js",
+   "sha256": "1369fb88ea18c2a5b0df594a8ab79e3a746c6fee2f0e32bbf71752f3a39a0f36"
+  },
+  {
+   "path": "js/subs.js",
+   "sha256": "5f821e1cb8a1c4dae6c86ac8ec19de3787b681c0ef687f1f2f9ea5c0ff7df30f"
+  },
+  {
+   "path": "js/linefit.js",
+   "sha256": "b20599bb806bc23556e9e204c10eb04dc3d57210de81764b54f989cc628f56b6"
+  },
+  {
+   "path": "js/mkvindex.js",
+   "sha256": "95f1a370311b28ad2153a3359d13bba204d4f3af25a9522893d00ef77361bafa"
+  },
+  {
+   "path": "js/fileindex.js",
+   "sha256": "2d712ba6bbe7d0c128c98deeddee2af3c56ca98a7c0befa7144a0d3e12b5405d"
+  },
+  {
+   "path": "js/session.js",
+   "sha256": "18e18ec2f7c68b3df7c4f6b9d4608b2793ebc43bc3ac8eec6be19bb40607715d"
+  },
+  {
+   "path": "js/skips.js",
+   "sha256": "0013cfa502ea28c61b278a6e7aae3f3ffd21b6b32d624da86cc82c6d58c3e29c"
+  },
+  {
+   "path": "js/player.js",
+   "sha256": "e05713c0d18ca9f3280bbf6f3b5c76ca45f7cfb41c4e03d91298308268336e04"
+  },
+  {
+   "path": "js/matchplay.js",
+   "sha256": "c607791942e01ed02b59a04c67caaf6975db59425b0712a4d946d1d290f1a436"
+  },
+  {
+   "path": "js/replays.js",
+   "sha256": "cc3c2053698bb6c1d863723d1422145598ef87d4e336911ead2cf7f553bff0a2"
+  },
+  {
+   "path": "js/desktop.js",
+   "sha256": "2d570a0376f878b18d2450b3d4123837015ab5dbe25899cb2b381ea9f0988139"
+  },
+  {
+   "path": "js/roll.js",
+   "sha256": "c53cdf705265875dd4af767a8a2f433363c60d4d9ae74588518b756bf15b39da"
+  },
+  {
+   "path": "js/findbar.js",
+   "sha256": "bc4795c996aca028c553b1004999550b3d0c5090c237304614ca7b558476e54f"
+  },
+  {
+   "path": "js/together.js",
+   "sha256": "07b0e41a71b1bef6ff86c2b04423147566b27eec7386ed25ff8e68a13de9cfc6"
+  },
+  {
+   "path": "js/views.js",
+   "sha256": "b406555294aef4dbade6638d7f57b852097200a03afca39107bfeadd1cba7723"
+  },
+  {
+   "path": "js/sportworld.js",
+   "sha256": "71a9f5670fc63276099631a09d204888b05478fded68b0ed7bc7e41338309b38"
+  },
+  {
+   "path": "js/ufcworld.js",
+   "sha256": "d7f712e44d2882c34962b6311ccabe40acdebdb6fd34623e17dd6320bd06ce17"
+  },
+  {
+   "path": "js/update.js",
+   "sha256": "9313f988fffcbad5bda5caf9b5e5fa40ce0810a238b90578f1036c352a2b61ab"
+  },
+  {
+   "path": "js/sub.js",
+   "sha256": "9d11f472c9e43ad945e35d814bc9516520bfb0cf0db4bfb66a6bd63a03b08e82"
+  },
+  {
+   "path": "js/main.js",
+   "sha256": "f9bf970db7e0846e94adfa0df1ff0fc877cffc73571af0eca91f981f73e389c7"
+  }
+ ]
+}
