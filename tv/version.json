@@ -1,8 +1,8 @@
 {
- "version": "0.2.57",
+ "version": "0.2.58",
  "css": {
   "path": "app.css",
-  "sha256": "8414892ef774c9e6da6a44746943384bd0f17e0ed53c3428af54db3078086162"
+  "sha256": "ffefb1ba7e6150e53db5e8abe34736c1beee15e17e81c9ab691f581bc11baa9c"
  },
  "body": {
   "path": "body.html",
@@ -71,11 +71,15 @@
   },
   {
    "path": "js/player.js",
-   "sha256": "b60f38c4a8f708878adf8474b4bbdf1c39d240d189396549a44fb5c0692a2b53"
+   "sha256": "19257e86d3add7ad60c050a44d43999081af99a4ba747c1f7a2f6c8032dbcddd"
   },
   {
    "path": "js/matchplay.js",
    "sha256": "c607791942e01ed02b59a04c67caaf6975db59425b0712a4d946d1d290f1a436"
+  },
+  {
+   "path": "js/episodes.js",
+   "sha256": "92b0479fe12526529fb6c96990e2dba4bacb6950dd98d950d5256385c375dab2"
   },
   {
    "path": "js/replays.js",
@@ -83,7 +87,7 @@
   },
   {
    "path": "js/desktop.js",
-   "sha256": "2d570a0376f878b18d2450b3d4123837015ab5dbe25899cb2b381ea9f0988139"
+   "sha256": "2261bb182a01a01a3fcfcd4e96ca772a59a631793720740a69d727a3d9bd43f6"
   },
   {
    "path": "js/roll.js",
