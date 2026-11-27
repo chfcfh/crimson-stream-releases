@@ -1,5 +1,5 @@
 {
- "version": "0.2.60",
+ "version": "0.2.61",
  "css": {
   "path": "app.css",
   "sha256": "5eedbb022ee5f77dda57cb0eed735f7984a4ecbc1eb26704a1aec58a46f9650d"
@@ -23,7 +23,7 @@
   },
   {
    "path": "js/store.js",
-   "sha256": "24a02c26bdba0dc30de322594cc3604aa70c31374efd8d21107a3b51d8489f9e"
+   "sha256": "548a7453fc1bb6f412a1458c16345058446f73627f225620d712d1fca818b18d"
   },
   {
    "path": "js/api.js",
@@ -39,7 +39,7 @@
   },
   {
    "path": "js/streams.js",
-   "sha256": "52c7151809ad209a14ef932bd501ec03d6920202c94af198ef17f806d6974b37"
+   "sha256": "6a68f15b7376700799f20d815f04e58b2f8f04005203ef747f7785c6923fd1cb"
   },
   {
    "path": "js/subs.js",
@@ -59,7 +59,7 @@
   },
   {
    "path": "js/session.js",
-   "sha256": "86646d5c7ac82355b4e243b511caa82c8e8f944a8f3ad6b589cd8a4877ab2216"
+   "sha256": "457d23e39fd35af2a40102d12fb5d8595406bf20a424700ec8cb80834d01c392"
   },
   {
    "path": "js/skips.js",
@@ -103,7 +103,7 @@
   },
   {
    "path": "js/views.js",
-   "sha256": "201c66e4e2ae085b682c37d25a26fd589001fc89f911787798e8921a88b5e2b0"
+   "sha256": "00ecff45317fe53f30308a15728459af6c91e6c1f5020efff5df8c2693c31a32"
   },
   {
    "path": "js/sportworld.js",
