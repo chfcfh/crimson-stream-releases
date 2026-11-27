@@ -1,5 +1,5 @@
 {
- "version": "0.2.59",
+ "version": "0.2.60",
  "css": {
   "path": "app.css",
   "sha256": "5eedbb022ee5f77dda57cb0eed735f7984a4ecbc1eb26704a1aec58a46f9650d"
@@ -23,7 +23,7 @@
   },
   {
    "path": "js/store.js",
-   "sha256": "304e968edcb163b59723d35a7f09e0adfa44a07f25b56cff0a5c56b9e04929fd"
+   "sha256": "24a02c26bdba0dc30de322594cc3604aa70c31374efd8d21107a3b51d8489f9e"
   },
   {
    "path": "js/api.js",
@@ -31,7 +31,7 @@
   },
   {
    "path": "js/addons.js",
-   "sha256": "0e03a207778f42114cbc80b3e82800974440ee479c3943177c323929ca4107fc"
+   "sha256": "35ae0927cb985ab2f036ab44ead47be883667c91021c3353a5fdd548b91022bb"
   },
   {
    "path": "js/library.js",
@@ -43,7 +43,7 @@
   },
   {
    "path": "js/subs.js",
-   "sha256": "5f821e1cb8a1c4dae6c86ac8ec19de3787b681c0ef687f1f2f9ea5c0ff7df30f"
+   "sha256": "93253ef10eb408e016d74c962ca8f42dc6cb8c8fd66f48bb340c5dba59b0e3c7"
   },
   {
    "path": "js/linefit.js",
@@ -59,7 +59,7 @@
   },
   {
    "path": "js/session.js",
-   "sha256": "18e18ec2f7c68b3df7c4f6b9d4608b2793ebc43bc3ac8eec6be19bb40607715d"
+   "sha256": "86646d5c7ac82355b4e243b511caa82c8e8f944a8f3ad6b589cd8a4877ab2216"
   },
   {
    "path": "js/skips.js",
@@ -71,7 +71,7 @@
   },
   {
    "path": "js/player.js",
-   "sha256": "2281d7b48d9d037e0141ed09fc7bae2c72cf1f610c798f6ad7b7317beda68a62"
+   "sha256": "26f10e93fcc1f3652b410b6021e98b9ab0323dedab8dce5fb913cbe2fcb93120"
   },
   {
    "path": "js/matchplay.js",
@@ -87,7 +87,7 @@
   },
   {
    "path": "js/desktop.js",
-   "sha256": "cb1a07e88738b310e8732cd0906ddae2ff6a5cd7fe5834080cd4fd2395bebe02"
+   "sha256": "419c0bf6193334248b0957a0ba43a77559bcb1b6a7ac839782e059f606b358e7"
   },
   {
    "path": "js/roll.js",
@@ -103,7 +103,7 @@
   },
   {
    "path": "js/views.js",
-   "sha256": "6b64df5ccf3da149169adbffbb5d9b0a3e4cb89c0a1ef9e7105ba11e01354cd0"
+   "sha256": "201c66e4e2ae085b682c37d25a26fd589001fc89f911787798e8921a88b5e2b0"
   },
   {
    "path": "js/sportworld.js",
