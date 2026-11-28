@@ -1,8 +1,8 @@
 {
- "version": "0.2.61",
+ "version": "0.2.62",
  "css": {
   "path": "app.css",
-  "sha256": "5eedbb022ee5f77dda57cb0eed735f7984a4ecbc1eb26704a1aec58a46f9650d"
+  "sha256": "d6a0c8a530533ecc705118e31f830368bd81efd2626c402e57056f334ab5f89e"
  },
  "body": {
   "path": "body.html",
@@ -23,7 +23,7 @@
   },
   {
    "path": "js/store.js",
-   "sha256": "548a7453fc1bb6f412a1458c16345058446f73627f225620d712d1fca818b18d"
+   "sha256": "9178c4e27db5a9a057a0ada03d96c06b525e48ac4d5db79c7e47853b0c41acd2"
   },
   {
    "path": "js/api.js",
@@ -103,7 +103,7 @@
   },
   {
    "path": "js/views.js",
-   "sha256": "00ecff45317fe53f30308a15728459af6c91e6c1f5020efff5df8c2693c31a32"
+   "sha256": "f048c76570dc794bc59943794a88cb1461e935cdf79ade7d1fb5da3fea258102"
   },
   {
    "path": "js/sportworld.js",
